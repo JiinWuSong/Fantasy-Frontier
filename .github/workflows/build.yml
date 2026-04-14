@@ -1,0 +1,27 @@
+﻿name: Unreal Build Check
+
+on:
+  pull_request:
+    branches: [dev]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Show Files
+        run: dir
+
+      - name: Build Check
+        run: echo "Basic CI check running"
