@@ -38,6 +38,11 @@ Frontend rendern und Editor bauen:
 powershell -ExecutionPolicy Bypass -File .\BuildGame.ps1 -BuildEditor
 ```
 
+## Repository-Workflow
+
+- Feature-Arbeit startet von `dev` in einem eigenen Branch.
+- Pull Requests fuer neue Aenderungen sollten gegen `dev` geoeffnet werden.
+
 ## Naechste sinnvolle Schritte
 
 - eigene Spielwelt-/Menu-Map statt Template-Level
