@@ -8,6 +8,8 @@
 
 class UInputMappingContext;
 class UUserWidget;
+class UAudioComponent;
+class UFantasyFrontierMenuMusic;
 class SFantasyFrontierFrontEndWidget;
 
 /**
@@ -57,6 +59,8 @@ private:
 	void ShowFrontEnd();
 	void HideFrontEnd();
 	void ApplyFrontEndInputState(bool bFrontEndEnabled);
+	void StartFrontEndMusic();
+	void StopFrontEndMusic(float FadeOutDuration = 0.6f);
 	void StartGameFromFrontEnd();
 	void QuitFromFrontEnd();
 	void CycleWindowMode();
@@ -65,6 +69,10 @@ private:
 	FText GetQualityLevelText() const;
 
 	TSharedPtr<SFantasyFrontierFrontEndWidget> FrontEndWidget;
+	UPROPERTY(Transient)
+	TObjectPtr<UFantasyFrontierMenuMusic> FrontEndMusicWave;
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> FrontEndMusicComponent;
 	bool bFrontEndVisible = false;
 
 };

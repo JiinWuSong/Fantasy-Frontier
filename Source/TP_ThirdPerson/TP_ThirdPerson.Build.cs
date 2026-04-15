@@ -22,7 +22,8 @@ public class TP_ThirdPerson : ModuleRules
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
-			"SlateCore"
+			"SlateCore",
+			"AudioExtensions"
 		});
 
 		PublicIncludePaths.AddRange(new string[] {

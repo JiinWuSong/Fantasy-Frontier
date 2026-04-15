@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Animation/CurveSequence.h"
 #include "Brushes/SlateColorBrush.h"
 #include "CoreMinimal.h"
 #include "Fonts/SlateFontInfo.h"
@@ -27,6 +28,7 @@ public:
 
 	void Construct(const FArguments& InArgs);
 	virtual ~SFantasyFrontierFrontEndWidget() override = default;
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
 private:
 	FReply HandleStartGame();
@@ -39,6 +41,16 @@ private:
 	EVisibility GetOptionsVisibility() const;
 	FSlateFontInfo MakeTitleFont() const;
 	FSlateFontInfo MakeBodyFont(int32 Size) const;
+	TOptional<FSlateRenderTransform> GetSkyTransform() const;
+	TOptional<FSlateRenderTransform> GetMidgroundTransform() const;
+	TOptional<FSlateRenderTransform> GetMistTransform() const;
+	TOptional<FSlateRenderTransform> GetForegroundTransform() const;
+	TOptional<FSlateRenderTransform> GetTitleTransform() const;
+	TOptional<FSlateRenderTransform> GetPanelTransform() const;
+	float GetTitleOpacity() const;
+	float GetMenuOpacity() const;
+	const FSlateBrush* ResolveBrush(const TSharedPtr<FSlateDynamicImageBrush>& Brush, const FSlateBrush* Fallback) const;
+	TSharedRef<SWidget> BuildMenuFrame();
 	TSharedRef<SWidget> BuildMainMenu();
 	TSharedRef<SWidget> BuildOptionsMenu();
 
@@ -48,11 +60,23 @@ private:
 	FSimpleDelegate OnCycleQuality;
 	TAttribute<FText> WindowModeLabel;
 	TAttribute<FText> QualityLabel;
-	TSharedPtr<FSlateDynamicImageBrush> BackgroundBrush;
+	TSharedPtr<FSlateDynamicImageBrush> SkyBrush;
+	TSharedPtr<FSlateDynamicImageBrush> MidgroundBrush;
+	TSharedPtr<FSlateDynamicImageBrush> MistBrush;
+	TSharedPtr<FSlateDynamicImageBrush> ForegroundBrush;
+	TSharedPtr<FSlateDynamicImageBrush> TitleLogoBrush;
+	TSharedPtr<FSlateDynamicImageBrush> DividerBrush;
+	TSharedPtr<FSlateDynamicImageBrush> PanelBrush;
+	TSharedPtr<FSlateDynamicImageBrush> ButtonNormalBrush;
+	TSharedPtr<FSlateDynamicImageBrush> ButtonHoveredBrush;
+	TSharedPtr<FSlateDynamicImageBrush> ButtonPressedBrush;
 	FButtonStyle MenuButtonStyle;
-	FSlateColorBrush ScreenTintBrush = FSlateColorBrush(FLinearColor(0.01f, 0.02f, 0.04f, 0.42f));
-	FSlateColorBrush PanelOuterBrush = FSlateColorBrush(FLinearColor(0.70f, 0.54f, 0.23f, 0.20f));
-	FSlateColorBrush PanelInnerBrush = FSlateColorBrush(FLinearColor(0.02f, 0.05f, 0.09f, 0.86f));
-	FSlateColorBrush AccentLineBrush = FSlateColorBrush(FLinearColor(0.79f, 0.62f, 0.25f, 0.95f));
+	FSlateColorBrush ScreenTintBrush = FSlateColorBrush(FLinearColor(0.01f, 0.03f, 0.05f, 0.18f));
+	FSlateColorBrush PanelFallbackBrush = FSlateColorBrush(FLinearColor(0.07f, 0.05f, 0.04f, 0.92f));
+	FSlateColorBrush DividerFallbackBrush = FSlateColorBrush(FLinearColor(0.80f, 0.66f, 0.34f, 0.95f));
+	FCurveSequence IntroSequence;
+	FCurveHandle TitleRevealCurve;
+	FCurveHandle MenuRevealCurve;
+	double AmbientTime = 0.0;
 	bool bShowingOptions = false;
 };

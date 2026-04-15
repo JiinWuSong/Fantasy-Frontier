@@ -2,7 +2,9 @@
 
 
 #include "TP_ThirdPersonPlayerController.h"
+#include "Components/AudioComponent.h"
 #include "FantasyFrontierFrontEndWidget.h"
+#include "FantasyFrontierMenuMusic.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/Engine.h"
 #include "Engine/LocalPlayer.h"
@@ -12,6 +14,7 @@
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "TP_ThirdPerson.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
@@ -98,6 +101,7 @@ void ATP_ThirdPersonPlayerController::ShowFrontEnd()
 	GEngine->GameViewport->AddViewportWidgetContent(FrontEndWidget.ToSharedRef(), 100);
 	bFrontEndVisible = true;
 	ApplyFrontEndInputState(true);
+	StartFrontEndMusic();
 }
 
 void ATP_ThirdPersonPlayerController::HideFrontEnd()
@@ -114,6 +118,7 @@ void ATP_ThirdPersonPlayerController::HideFrontEnd()
 
 	FrontEndWidget.Reset();
 	bFrontEndVisible = false;
+	StopFrontEndMusic();
 }
 
 void ATP_ThirdPersonPlayerController::ApplyFrontEndInputState(bool bFrontEndEnabled)
@@ -139,6 +144,49 @@ void ATP_ThirdPersonPlayerController::ApplyFrontEndInputState(bool bFrontEndEnab
 		FInputModeGameOnly InputMode;
 		SetInputMode(InputMode);
 	}
+}
+
+void ATP_ThirdPersonPlayerController::StartFrontEndMusic()
+{
+	if (FrontEndMusicComponent || !IsLocalPlayerController())
+	{
+		return;
+	}
+
+	if (!FrontEndMusicWave)
+	{
+		FrontEndMusicWave = NewObject<UFantasyFrontierMenuMusic>(this);
+	}
+
+	if (!FrontEndMusicWave)
+	{
+		return;
+	}
+
+	FrontEndMusicComponent = UGameplayStatics::SpawnSound2D(this, FrontEndMusicWave, 0.42f, 1.0f, 0.0f, nullptr, false, false);
+	if (FrontEndMusicComponent)
+	{
+		FrontEndMusicComponent->bIsUISound = true;
+	}
+}
+
+void ATP_ThirdPersonPlayerController::StopFrontEndMusic(float FadeOutDuration)
+{
+	if (!FrontEndMusicComponent)
+	{
+		return;
+	}
+
+	if (FadeOutDuration > 0.0f)
+	{
+		FrontEndMusicComponent->FadeOut(FadeOutDuration, 0.0f);
+	}
+	else
+	{
+		FrontEndMusicComponent->Stop();
+	}
+
+	FrontEndMusicComponent = nullptr;
 }
 
 void ATP_ThirdPersonPlayerController::StartGameFromFrontEnd()
@@ -224,12 +272,12 @@ FText ATP_ThirdPersonPlayerController::GetWindowModeText() const
 	switch (UserSettings->GetFullscreenMode())
 	{
 	case EWindowMode::Fullscreen:
-		return FText::FromString(TEXT("Vollbild"));
+		return FText::FromString(TEXT("Fullscreen"));
 	case EWindowMode::Windowed:
-		return FText::FromString(TEXT("Fenster"));
+		return FText::FromString(TEXT("Windowed"));
 	case EWindowMode::WindowedFullscreen:
 	default:
-		return FText::FromString(TEXT("Randlos"));
+		return FText::FromString(TEXT("Borderless"));
 	}
 }
 
@@ -244,16 +292,16 @@ FText ATP_ThirdPersonPlayerController::GetQualityLevelText() const
 	switch (UserSettings->GetOverallScalabilityLevel())
 	{
 	case 0:
-		return FText::FromString(TEXT("Niedrig"));
+		return FText::FromString(TEXT("Low"));
 	case 1:
-		return FText::FromString(TEXT("Mittel"));
+		return FText::FromString(TEXT("Medium"));
 	case 2:
-		return FText::FromString(TEXT("Hoch"));
+		return FText::FromString(TEXT("High"));
 	case 3:
-		return FText::FromString(TEXT("Episch"));
+		return FText::FromString(TEXT("Epic"));
 	case 4:
-		return FText::FromString(TEXT("Kino"));
+		return FText::FromString(TEXT("Cinematic"));
 	default:
-		return FText::FromString(TEXT("Benutzerdefiniert"));
+		return FText::FromString(TEXT("Custom"));
 	}
 }
