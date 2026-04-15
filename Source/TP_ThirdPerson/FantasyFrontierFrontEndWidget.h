@@ -4,6 +4,7 @@
 #include "Brushes/SlateColorBrush.h"
 #include "CoreMinimal.h"
 #include "Fonts/SlateFontInfo.h"
+#include "Input/Events.h"
 #include "Input/Reply.h"
 #include "Styling/SlateTypes.h"
 #include "Widgets/SCompoundWidget.h"
@@ -29,8 +30,14 @@ public:
 	void Construct(const FArguments& InArgs);
 	virtual ~SFantasyFrontierFrontEndWidget() override = default;
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+	virtual bool SupportsKeyboardFocus() const override { return true; }
+	virtual FReply OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
 
 private:
+	void ResetIdleTimer();
 	FReply HandleStartGame();
 	FReply HandleQuit();
 	FReply HandleShowOptions();
@@ -49,6 +56,9 @@ private:
 	TOptional<FSlateRenderTransform> GetPanelTransform() const;
 	float GetTitleOpacity() const;
 	float GetMenuOpacity() const;
+	float GetMainMenuOpacity() const;
+	float GetOptionsOpacity() const;
+	float GetShowcaseCaptionOpacity() const;
 	const FSlateBrush* ResolveBrush(const TSharedPtr<FSlateDynamicImageBrush>& Brush, const FSlateBrush* Fallback) const;
 	TSharedRef<SWidget> BuildMenuFrame();
 	TSharedRef<SWidget> BuildMainMenu();
@@ -71,12 +81,16 @@ private:
 	TSharedPtr<FSlateDynamicImageBrush> ButtonHoveredBrush;
 	TSharedPtr<FSlateDynamicImageBrush> ButtonPressedBrush;
 	FButtonStyle MenuButtonStyle;
-	FSlateColorBrush ScreenTintBrush = FSlateColorBrush(FLinearColor(0.01f, 0.03f, 0.05f, 0.18f));
-	FSlateColorBrush PanelFallbackBrush = FSlateColorBrush(FLinearColor(0.07f, 0.05f, 0.04f, 0.92f));
+	FButtonStyle TextMenuButtonStyle;
+	FSlateColorBrush ScreenTintBrush = FSlateColorBrush(FLinearColor(1.0f, 0.97f, 0.88f, 0.06f));
+	FSlateColorBrush PanelFallbackBrush = FSlateColorBrush(FLinearColor(0.12f, 0.21f, 0.24f, 0.88f));
 	FSlateColorBrush DividerFallbackBrush = FSlateColorBrush(FLinearColor(0.80f, 0.66f, 0.34f, 0.95f));
 	FCurveSequence IntroSequence;
 	FCurveHandle TitleRevealCurve;
 	FCurveHandle MenuRevealCurve;
 	double AmbientTime = 0.0;
+	double LastInteractionTime = 0.0;
+	float ShowcaseBlend = 0.0f;
+	float IdleShowcaseDelay = 12.5f;
 	bool bShowingOptions = false;
 };
