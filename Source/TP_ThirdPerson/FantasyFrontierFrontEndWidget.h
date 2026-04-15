@@ -7,7 +7,7 @@
 #include "Styling/SlateTypes.h"
 #include "Widgets/SCompoundWidget.h"
 
-class FSlateDynamicImageBrush;
+struct FSlateDynamicImageBrush;
 
 class SFantasyFrontierFrontEndWidget : public SCompoundWidget
 {
