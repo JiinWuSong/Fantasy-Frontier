@@ -4,7 +4,7 @@ import math
 import random
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -111,11 +111,11 @@ def add_mountains(image: Image.Image) -> None:
     for color, horizon, variance, step, seed in ranges:
         draw.polygon(make_hill_points(WIDTH, HEIGHT, horizon, variance, step, seed), fill=color)
 
-    snow = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    snow_draw = ImageDraw.Draw(snow)
-    snow_draw.polygon([(1140, 474), (1220, 380), (1300, 470)], fill=(239, 248, 252, 145))
-    snow_draw.polygon([(1280, 495), (1370, 390), (1470, 505)], fill=(242, 249, 255, 130))
-    image.alpha_composite(snow.filter(ImageFilter.GaussianBlur(radius=2)))
+    ridge = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    ridge_draw = ImageDraw.Draw(ridge)
+    ridge_draw.line((1010, 452, 1188, 398), fill=(238, 246, 252, 86), width=4)
+    ridge_draw.line((1222, 430, 1412, 382), fill=(244, 249, 255, 72), width=4)
+    image.alpha_composite(ridge.filter(ImageFilter.GaussianBlur(radius=8)))
 
 
 def add_haze_bands(image: Image.Image) -> None:
@@ -297,26 +297,14 @@ def add_day_forest(image: Image.Image) -> None:
         else:
             draw_pine(draw, cluster_x, baseline, scale, (82, 58, 37, 255), (51, 119, 85, 222), rng)
 
-    village = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    village_draw = ImageDraw.Draw(village)
-    draw_hut(village_draw, 1168, 696, 0.95)
-    draw_hut(village_draw, 1274, 728, 0.76)
-    draw_hut(village_draw, 1390, 706, 0.88)
-    village_draw.ellipse((1300, 784, 1372, 830), fill=(245, 167, 82, 180))
-    village_draw.ellipse((1308, 792, 1364, 824), fill=(255, 221, 137, 182))
-    for puff_x, puff_y, r in ((1332, 744, 22), (1354, 718, 28), (1372, 684, 36)):
-        village_draw.ellipse((puff_x - r, puff_y - r, puff_x + r, puff_y + r), fill=(255, 250, 245, 68))
-    draw_kobold(village_draw, 1210, 780, 0.92, 1)
-    draw_kobold(village_draw, 1340, 792, 0.84, -1)
-    draw_kobold(village_draw, 1450, 776, 0.96, 1)
-    image.alpha_composite(village.filter(ImageFilter.GaussianBlur(radius=1)))
-
-    wildlife = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    wildlife_draw = ImageDraw.Draw(wildlife)
-    draw_wolf(wildlife_draw, 760, 824, 0.92)
-    draw_wolf(wildlife_draw, 880, 838, 0.74)
-    draw_fox(wildlife_draw, 412, 874, 0.86)
-    image.alpha_composite(wildlife)
+    shrine = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    shrine_draw = ImageDraw.Draw(shrine)
+    shrine_draw.rectangle((1220, 618, 1238, 756), fill=(79, 105, 114, 168))
+    shrine_draw.rectangle((1250, 646, 1266, 756), fill=(63, 88, 100, 150))
+    shrine_draw.rectangle((1282, 630, 1300, 756), fill=(76, 104, 116, 160))
+    shrine_draw.polygon([(1192, 756), (1244, 688), (1338, 688), (1382, 756)], fill=(68, 96, 109, 132))
+    shrine_draw.ellipse((1168, 700, 1410, 842), fill=(255, 230, 186, 26))
+    image.alpha_composite(shrine.filter(ImageFilter.GaussianBlur(radius=6)))
 
 
 def add_sun_rays(image: Image.Image) -> None:
@@ -348,6 +336,36 @@ def add_pollen(image: Image.Image, count: int, seed: int) -> None:
         color = rng.choice(((255, 236, 186, 110), (255, 245, 222, 132), (212, 244, 208, 86)))
         draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
     image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(radius=3)))
+
+
+def add_painterly_noise(image: Image.Image, seed: int, opacity: int, scale: int = 4, tint: tuple[int, int, int] = (255, 244, 221)) -> None:
+    rng = random.Random(seed)
+    width, height = image.size
+    noise = Image.new("RGBA", (max(1, width // scale), max(1, height // scale)), (0, 0, 0, 0))
+    pixels = noise.load()
+    for y in range(noise.size[1]):
+        for x in range(noise.size[0]):
+            brightness = rng.randint(120, 255)
+            alpha = rng.randint(0, opacity)
+            pixels[x, y] = (
+                int(tint[0] * brightness / 255),
+                int(tint[1] * brightness / 255),
+                int(tint[2] * brightness / 255),
+                alpha,
+            )
+    noise = noise.resize((width, height), Image.Resampling.BICUBIC).filter(ImageFilter.GaussianBlur(radius=2))
+    alpha_mask = image.getchannel("A").point(lambda value: int(value * 0.35))
+    noise.putalpha(ImageChops.multiply(noise.getchannel("A"), alpha_mask))
+    image.alpha_composite(noise)
+
+
+def add_canvas_vignette(image: Image.Image, center_alpha: int, edge_alpha: int) -> None:
+    overlay = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+    width, height = image.size
+    draw.rounded_rectangle((0, 0, width, height), radius=120, fill=(255, 247, 232, center_alpha))
+    draw.rounded_rectangle((36, 28, width - 36, height - 28), radius=110, outline=(38, 52, 60, edge_alpha), width=52)
+    image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(radius=46)))
 
 
 def add_foreground_frame(image: Image.Image) -> None:
@@ -398,13 +416,7 @@ def add_foreground_frame(image: Image.Image) -> None:
         meadow_draw.line((flower_x, flower_y, flower_x, flower_y + 22), fill=(78, 122, 72, 255), width=2)
     overlay.alpha_composite(meadow)
 
-    wildlife = Image.new("RGBA", image.size, (0, 0, 0, 0))
-    wildlife_draw = ImageDraw.Draw(wildlife)
-    draw_fox(wildlife_draw, 208, 920, 1.12)
-    draw_wolf(wildlife_draw, 1480, 922, 0.94)
-    overlay.alpha_composite(wildlife)
-
-    image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(radius=0.5)))
+    image.alpha_composite(overlay.filter(ImageFilter.GaussianBlur(radius=2.0)))
 
 
 def build_background_layers() -> None:
@@ -475,41 +487,26 @@ def build_background_layers() -> None:
         ruins.alpha_composite(halo.filter(ImageFilter.GaussianBlur(radius=30)))
         image.alpha_composite(ruins.filter(ImageFilter.GaussianBlur(radius=0.7)))
 
-    sky = make_vertical_gradient((WIDTH, HEIGHT), (98, 170, 235), (252, 244, 219))
+    sky = make_vertical_gradient((WIDTH, HEIGHT), (110, 176, 235), (251, 231, 190))
     add_sun(sky, (1498, 166), 90)
     add_clouds(sky, random.Random(15), 18, (44, 238))
     add_cloud_bank(sky)
     add_mountains(sky)
     add_haze_bands(sky)
+    add_painterly_noise(sky, 401, 22, 5, (255, 244, 224))
     horizon_glow = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     horizon_draw = ImageDraw.Draw(horizon_glow)
     horizon_draw.rounded_rectangle((-40, 470, WIDTH + 40, 720), radius=120, fill=(255, 230, 188, 44))
     sky.alpha_composite(horizon_glow.filter(ImageFilter.GaussianBlur(radius=48)))
+    add_canvas_vignette(sky, 10, 28)
     sky.save(SLATE_DIR / "MenuSky.png")
 
     mid = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     draw = ImageDraw.Draw(mid)
     draw.polygon(make_hill_points(WIDTH, HEIGHT, 590, 54, 92, 63), fill=(104, 147, 165, 218))
-    draw.polygon(make_hill_points(WIDTH, HEIGHT, 642, 42, 84, 71), fill=(78, 128, 112, 255))
-    draw.polygon(make_hill_points(WIDTH, HEIGHT, 694, 36, 76, 77), fill=(58, 107, 78, 255))
+    add_day_forest(mid)
     add_reflective_lake(mid)
     add_ruin_silhouettes(mid)
-
-    tree_band = Image.new("RGBA", mid.size, (0, 0, 0, 0))
-    tree_draw = ImageDraw.Draw(tree_band)
-    rng = random.Random(117)
-    for x in range(-20, WIDTH + 30, 18):
-        height = rng.randint(42, 124)
-        width = rng.randint(10, 24)
-        base_y = 742 + int(18 * math.sin(x * 0.03))
-        color = rng.choice(((42, 86, 64, 210), (54, 102, 72, 205), (66, 118, 84, 196)))
-        tree_draw.polygon([(x - width, base_y), (x, base_y - height), (x + width, base_y)], fill=color)
-    for x in range(-40, WIDTH + 60, 64):
-        radius_x = rng.randint(56, 96)
-        radius_y = rng.randint(28, 58)
-        center_y = rng.randint(660, 772)
-        tree_draw.ellipse((x - radius_x, center_y - radius_y, x + radius_x, center_y + radius_y), fill=(73, 128, 88, 54))
-    mid.alpha_composite(tree_band.filter(ImageFilter.GaussianBlur(radius=4)))
 
     glow_grove = Image.new("RGBA", mid.size, (0, 0, 0, 0))
     glow_draw = ImageDraw.Draw(glow_grove)
@@ -522,51 +519,32 @@ def build_background_layers() -> None:
     mid.alpha_composite(glow_grove.filter(ImageFilter.GaussianBlur(radius=26)))
 
     add_pollen(mid, 58, 88)
-    mid = mid.filter(ImageFilter.GaussianBlur(radius=0.8))
+    add_painterly_noise(mid, 402, 16, 4, (236, 248, 232))
+    mid = mid.filter(ImageFilter.GaussianBlur(radius=1.15))
     mid.save(SLATE_DIR / "MenuMidground.png")
 
     mist = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     add_sun_rays(mist)
-    add_haze_bands(mist)
-    add_pollen(mist, 76, 91)
+    add_pollen(mist, 44, 91)
     mist_glow = Image.new("RGBA", mist.size, (0, 0, 0, 0))
     mist_draw = ImageDraw.Draw(mist_glow)
     mist_draw.ellipse((1188, 560, 1794, 928), fill=(255, 240, 214, 28))
     mist_draw.ellipse((272, 512, 906, 874), fill=(212, 244, 228, 18))
     mist.alpha_composite(mist_glow.filter(ImageFilter.GaussianBlur(radius=38)))
+    add_painterly_noise(mist, 403, 10, 6, (255, 247, 236))
     mist.save(SLATE_DIR / "MenuMist.png")
 
     foreground = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
-    frame = ImageDraw.Draw(foreground)
-    frame.polygon([(0, 860), (210, 824), (482, 866), (812, 838), (1130, 886), (1422, 850), (1708, 902), (WIDTH, 872), (WIDTH, HEIGHT), (0, HEIGHT)], fill=(55, 98, 67, 214))
-    for x in range(0, WIDTH, 16):
-        base_y = 956 + int(18 * math.sin(x * 0.032))
-        tip_y = base_y - 50 - int(20 * math.cos(x * 0.052))
-        frame.line((x, base_y, x + 8, tip_y), fill=(87, 148, 96, 144), width=2)
-    edge_foliage = Image.new("RGBA", foreground.size, (0, 0, 0, 0))
-    edge_draw = ImageDraw.Draw(edge_foliage)
-    for anchor_x in (74, 178, 1702, 1812):
-        for _ in range(14):
-            lx = anchor_x + rng.randint(-96, 94)
-            ly = rng.randint(40, 420)
-            rw = rng.randint(52, 114)
-            rh = rng.randint(20, 52)
-            edge_draw.ellipse((lx - rw, ly - rh, lx + rw, ly + rh), fill=rng.choice(((86, 162, 93, 58), (122, 196, 108, 52), (72, 135, 99, 66))))
-    foreground.alpha_composite(edge_foliage.filter(ImageFilter.GaussianBlur(radius=14)))
-
-    ruin_frame = Image.new("RGBA", foreground.size, (0, 0, 0, 0))
-    ruin_draw = ImageDraw.Draw(ruin_frame)
-    ruin_draw.rectangle((1702, 520, 1746, 930), fill=(76, 92, 104, 152))
-    ruin_draw.rectangle((1628, 604, 1702, 650), fill=(86, 104, 116, 138))
-    ruin_draw.ellipse((1604, 594, 1726, 726), outline=(210, 223, 228, 48), width=4)
-    foreground.alpha_composite(ruin_frame.filter(ImageFilter.GaussianBlur(radius=1.8)))
-    add_pollen(foreground, 34, 77)
+    add_foreground_frame(foreground)
+    add_pollen(foreground, 20, 77)
+    add_painterly_noise(foreground, 404, 12, 5, (224, 235, 214))
     foreground.save(SLATE_DIR / "MenuForeground.png")
 
     preview = sky.copy()
     preview.alpha_composite(mid)
     preview.alpha_composite(mist)
     preview.alpha_composite(foreground)
+    add_canvas_vignette(preview, 0, 18)
     preview.save(SLATE_DIR / "MenuBackground.png")
 
 

@@ -3,14 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "FantasyFrontierCharacterCreatorTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "TP_ThirdPersonPlayerController.generated.h"
 
 class UInputMappingContext;
 class UUserWidget;
 class UAudioComponent;
-class UFantasyFrontierMenuMusic;
+class USoundBase;
+class UTextureRenderTarget2D;
+class UFantasyFrontierAppearancePresetSaveGame;
 class SFantasyFrontierFrontEndWidget;
+class SFantasyFrontierCharacterCreatorWidget;
+class AFantasyFrontierCharacterPreviewActor;
+class AFantasyFrontierPlayableCharacter;
+class AFantasyFrontierTutorialDirector;
+class AFantasyFrontierFunctionalNpc;
+class AFantasyFrontierEnemyBase;
 
 /**
  *  Basic PlayerController class for a third person game
@@ -56,23 +65,87 @@ protected:
 	bool ShouldUseTouchControls() const;
 
 private:
+	enum class EFantasyFrontierMusicState : uint8
+	{
+		None,
+		Title,
+		CharacterCreator,
+		Overworld,
+		Combat,
+		City,
+		Shop
+	};
+
 	void ShowFrontEnd();
-	void HideFrontEnd();
-	void ApplyFrontEndInputState(bool bFrontEndEnabled);
-	void StartFrontEndMusic();
+	void HideFrontEnd(bool bStopMusic = true);
+	void ShowCharacterCreator();
+	void HideCharacterCreator(bool bDestroyPreviewActor = true);
+	void ApplyMenuInputState(bool bUIEnabled, const TSharedPtr<SWidget>& FocusWidget);
+	void StartFrontEndMusic(EFantasyFrontierMusicState DesiredState);
 	void StopFrontEndMusic(float FadeOutDuration = 0.6f);
+	void SetFrontEndMusicState(EFantasyFrontierMusicState DesiredState, float FadeOutDuration = 0.25f);
+	USoundBase* ResolveMusicCue(EFantasyFrontierMusicState DesiredState) const;
 	void StartGameFromFrontEnd();
+	void HandleCharacterCreatorCancelled();
+	void HandleCharacterDraftChanged(FFantasyFrontierCharacterDraft InDraft);
+	void HandleCharacterPreviewRotated(float InDeltaYaw);
+	void HandleCharacterPreviewZoomed(float InDeltaZoom);
+	void SaveAppearancePreset();
+	void LoadAppearancePreset();
+	void CommitCharacterCreator(FFantasyFrontierCharacterDraft InDraft);
+	void EnsureCharacterPreview();
+	void ApplyDraftToPlayerPawn(const FFantasyFrontierCharacterDraft& InDraft);
 	void QuitFromFrontEnd();
 	void CycleWindowMode();
 	void CycleQualityLevel();
+	void CycleShadowQuality();
+	void CycleAntiAliasingQuality();
+	void CyclePostProcessQuality();
+	void CycleViewDistanceQuality();
 	FText GetWindowModeText() const;
 	FText GetQualityLevelText() const;
+	FText GetShadowQualityText() const;
+	FText GetAntiAliasingQualityText() const;
+	FText GetPostProcessQualityText() const;
+	FText GetViewDistanceQualityText() const;
+	void ApplyAndSaveUserSettings() const;
+	void AdvanceSmokeTest();
+	void RunSmokeMovementPulse();
+	void FinishSmokeTest(bool bSuccess, const FString& FailureReason = FString());
+	void RequestSmokeTestExit();
+	void CaptureSmokeScreenshot(const FString& Label);
+	void LogSmokeTestStep(const FString& StepLabel, bool bPassed, const FString& Details = FString()) const;
+	AFantasyFrontierPlayableCharacter* GetSmokePlayerCharacter() const;
+	AFantasyFrontierPlayableCharacter* EnsurePlayableCharacterPawn();
+	AFantasyFrontierTutorialDirector* GetSmokeTutorialDirector() const;
+	AFantasyFrontierTutorialDirector* EnsureTutorialDirector() const;
+	AFantasyFrontierFunctionalNpc* FindNpcByRole(uint8 RoleValue) const;
+	AFantasyFrontierEnemyBase* FindFirstEnemy() const;
 
 	TSharedPtr<SFantasyFrontierFrontEndWidget> FrontEndWidget;
-	UPROPERTY(Transient)
-	TObjectPtr<UFantasyFrontierMenuMusic> FrontEndMusicWave;
+	TSharedPtr<SFantasyFrontierCharacterCreatorWidget> CharacterCreatorWidget;
 	UPROPERTY(Transient)
 	TObjectPtr<UAudioComponent> FrontEndMusicComponent;
+	EFantasyFrontierMusicState CurrentMusicState = EFantasyFrontierMusicState::None;
+	UPROPERTY(Transient)
+	TObjectPtr<UTextureRenderTarget2D> CharacterPreviewRenderTarget;
+	UPROPERTY(Transient)
+	TObjectPtr<AFantasyFrontierCharacterPreviewActor> CharacterPreviewActor;
+	FFantasyFrontierCharacterDraft LastLoadedDraft;
 	bool bFrontEndVisible = false;
+	bool bCharacterCreatorVisible = false;
+	bool bRunSmokeTest = false;
+	bool bSmokeTestComplete = false;
+	bool bCaptureSmokeScreenshots = false;
+	int32 SmokeStepIndex = 0;
+	int32 SmokeScreenshotIndex = 0;
+	int32 SmokeMoveTicksRemaining = 0;
+	float SmokeActionStaminaBefore = 0.0f;
+	FVector SmokeMovementStart = FVector::ZeroVector;
+	FString SmokeScreenshotPrefix;
+	FTimerHandle SmokeStepTimer;
+	FTimerHandle SmokeMoveTimer;
+	FTimerHandle SmokeExitTimer;
+	TWeakObjectPtr<AFantasyFrontierEnemyBase> SmokeTrackedEnemy;
 
 };

@@ -14,7 +14,11 @@
 #include "Engine/DamageEvents.h"
 #include "TimerManager.h"
 #include "Engine/LocalPlayer.h"
+#include "Blueprint/UserWidget.h"
 #include "CombatPlayerController.h"
+#include "UObject/ConstructorHelpers.h"
+
+DEFINE_LOG_CATEGORY(LogCombatCharacter);
 
 ACombatCharacter::ACombatCharacter()
 {
@@ -46,6 +50,15 @@ ACombatCharacter::ACombatCharacter()
 	// create the life bar widget component
 	LifeBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("LifeBar"));
 	LifeBar->SetupAttachment(RootComponent);
+	LifeBar->SetWidgetSpace(EWidgetSpace::Screen);
+	LifeBar->SetDrawAtDesiredSize(true);
+	LifeBar->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
+
+	static ConstructorHelpers::FClassFinder<UUserWidget> LifeBarWidgetClassRef(TEXT("/Game/Variant_Combat/UI/UI_LifeBar"));
+	if (LifeBarWidgetClassRef.Succeeded())
+	{
+		LifeBar->SetWidgetClass(LifeBarWidgetClassRef.Class);
+	}
 
 	// set the player tag
 	Tags.Add(FName("Player"));
@@ -176,7 +189,10 @@ void ACombatCharacter::ResetHP()
 	CurrentHP = MaxHP;
 
 	// update the life bar
-	LifeBarWidget->SetLifePercentage(1.0f);
+	if (LifeBarWidget)
+	{
+		LifeBarWidget->SetLifePercentage(1.0f);
+	}
 }
 
 void ACombatCharacter::ComboAttack()
@@ -411,7 +427,10 @@ void ACombatCharacter::HandleDeath()
 	GetMesh()->SetSimulatePhysics(true);
 
 	// hide the life bar
-	LifeBar->SetHiddenInGame(true);
+	if (LifeBar)
+	{
+		LifeBar->SetHiddenInGame(true);
+	}
 
 	// pull back the camera
 	GetCameraBoom()->TargetArmLength = DeathCameraDistance;
@@ -456,7 +475,10 @@ float ACombatCharacter::TakeDamage(float Damage, struct FDamageEvent const& Dama
 	else
 	{
 		// update the life bar
-		LifeBarWidget->SetLifePercentage(CurrentHP / MaxHP);
+		if (LifeBarWidget)
+		{
+			LifeBarWidget->SetLifePercentage(CurrentHP / MaxHP);
+		}
 
 		// enable partial ragdoll physics, but keep the pelvis vertical
 		GetMesh()->SetPhysicsBlendWeight(0.5f);
@@ -484,8 +506,16 @@ void ACombatCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	// get the life bar from the widget component
+	LifeBar->InitWidget();
 	LifeBarWidget = Cast<UCombatLifeBar>(LifeBar->GetUserWidgetObject());
-	check(LifeBarWidget);
+	if (!LifeBarWidget)
+	{
+		UE_LOG(LogCombatCharacter, Warning, TEXT("Life bar widget is missing for %s. Combat HUD will stay hidden."), *GetName());
+		if (LifeBar)
+		{
+			LifeBar->SetHiddenInGame(true);
+		}
+	}
 
 	// initialize the camera
 	GetCameraBoom()->TargetArmLength = DefaultCameraDistance;
@@ -494,7 +524,10 @@ void ACombatCharacter::BeginPlay()
 	MeshStartingTransform = GetMesh()->GetRelativeTransform();
 
 	// set the life bar color
-	LifeBarWidget->SetBarColor(LifeBarColor);
+	if (LifeBarWidget)
+	{
+		LifeBarWidget->SetBarColor(LifeBarColor);
+	}
 
 	// reset HP to maximum
 	ResetHP();

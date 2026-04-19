@@ -2,6 +2,7 @@
 
 #include "Animation/CurveSequence.h"
 #include "Brushes/SlateColorBrush.h"
+#include "Brushes/SlateRoundedBoxBrush.h"
 #include "CoreMinimal.h"
 #include "Fonts/SlateFontInfo.h"
 #include "Input/Events.h"
@@ -17,14 +18,26 @@ public:
 	SLATE_BEGIN_ARGS(SFantasyFrontierFrontEndWidget)
 		: _WindowModeLabel(FText::GetEmpty())
 		, _QualityLabel(FText::GetEmpty())
+		, _ShadowQualityLabel(FText::GetEmpty())
+		, _AntiAliasingLabel(FText::GetEmpty())
+		, _PostProcessLabel(FText::GetEmpty())
+		, _ViewDistanceLabel(FText::GetEmpty())
 	{
 	}
 		SLATE_EVENT(FSimpleDelegate, OnStartGame)
 		SLATE_EVENT(FSimpleDelegate, OnQuit)
 		SLATE_EVENT(FSimpleDelegate, OnCycleWindowMode)
 		SLATE_EVENT(FSimpleDelegate, OnCycleQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCycleShadowQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCycleAntiAliasingQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCyclePostProcessQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCycleViewDistanceQuality)
 		SLATE_ATTRIBUTE(FText, WindowModeLabel)
 		SLATE_ATTRIBUTE(FText, QualityLabel)
+		SLATE_ATTRIBUTE(FText, ShadowQualityLabel)
+		SLATE_ATTRIBUTE(FText, AntiAliasingLabel)
+		SLATE_ATTRIBUTE(FText, PostProcessLabel)
+		SLATE_ATTRIBUTE(FText, ViewDistanceLabel)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -44,6 +57,10 @@ private:
 	FReply HandleCloseOptions();
 	FReply HandleCycleWindowMode();
 	FReply HandleCycleQuality();
+	FReply HandleCycleShadowQuality();
+	FReply HandleCycleAntiAliasingQuality();
+	FReply HandleCyclePostProcessQuality();
+	FReply HandleCycleViewDistanceQuality();
 	EVisibility GetMainMenuVisibility() const;
 	EVisibility GetOptionsVisibility() const;
 	FSlateFontInfo MakeTitleFont() const;
@@ -68,8 +85,16 @@ private:
 	FSimpleDelegate OnQuit;
 	FSimpleDelegate OnCycleWindowMode;
 	FSimpleDelegate OnCycleQuality;
+	FSimpleDelegate OnCycleShadowQuality;
+	FSimpleDelegate OnCycleAntiAliasingQuality;
+	FSimpleDelegate OnCyclePostProcessQuality;
+	FSimpleDelegate OnCycleViewDistanceQuality;
 	TAttribute<FText> WindowModeLabel;
 	TAttribute<FText> QualityLabel;
+	TAttribute<FText> ShadowQualityLabel;
+	TAttribute<FText> AntiAliasingLabel;
+	TAttribute<FText> PostProcessLabel;
+	TAttribute<FText> ViewDistanceLabel;
 	TSharedPtr<FSlateDynamicImageBrush> SkyBrush;
 	TSharedPtr<FSlateDynamicImageBrush> MidgroundBrush;
 	TSharedPtr<FSlateDynamicImageBrush> MistBrush;
@@ -83,7 +108,9 @@ private:
 	FButtonStyle MenuButtonStyle;
 	FButtonStyle TextMenuButtonStyle;
 	FSlateColorBrush ScreenTintBrush = FSlateColorBrush(FLinearColor(1.0f, 0.97f, 0.88f, 0.06f));
-	FSlateColorBrush PanelFallbackBrush = FSlateColorBrush(FLinearColor(0.12f, 0.21f, 0.24f, 0.88f));
+	FSlateRoundedBoxBrush MenuPanelFallbackBrush = FSlateRoundedBoxBrush(FLinearColor(0.05f, 0.11f, 0.17f, 0.84f), 34.0f, FLinearColor(0.72f, 0.60f, 0.34f, 0.28f), 1.4f);
+	FSlateRoundedBoxBrush MenuChipBrush = FSlateRoundedBoxBrush(FLinearColor(0.09f, 0.17f, 0.24f, 0.64f), 22.0f, FLinearColor(0.84f, 0.72f, 0.44f, 0.18f), 1.0f);
+	FSlateRoundedBoxBrush MenuShadowBrush = FSlateRoundedBoxBrush(FLinearColor(0.02f, 0.04f, 0.06f, 0.32f), 38.0f);
 	FSlateColorBrush DividerFallbackBrush = FSlateColorBrush(FLinearColor(0.80f, 0.66f, 0.34f, 0.95f));
 	FCurveSequence IntroSequence;
 	FCurveHandle TitleRevealCurve;

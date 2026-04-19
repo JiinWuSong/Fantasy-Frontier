@@ -34,29 +34,14 @@ namespace
 
 	FButtonStyle BuildMenuButtonStyle(const FSlateBrush* NormalBrush, const FSlateBrush* HoveredBrush, const FSlateBrush* PressedBrush)
 	{
-		if (NormalBrush && HoveredBrush && PressedBrush)
-		{
-			return FButtonStyle()
-				.SetNormal(*NormalBrush)
-				.SetHovered(*HoveredBrush)
-				.SetPressed(*PressedBrush)
-				.SetNormalForeground(FLinearColor(0.98f, 0.94f, 0.84f))
-				.SetHoveredForeground(FLinearColor(1.0f, 0.98f, 0.90f))
-				.SetPressedForeground(FLinearColor(0.95f, 0.90f, 0.82f))
-				.SetPressedPadding(FMargin(0.0f, 3.0f, 0.0f, -3.0f));
-		}
-
-		const FLinearColor Normal = FLinearColor(0.16f, 0.10f, 0.07f, 0.95f);
-		const FLinearColor Hovered = FLinearColor(0.24f, 0.15f, 0.09f, 0.97f);
-		const FLinearColor Pressed = FLinearColor(0.11f, 0.07f, 0.05f, 0.99f);
-
 		return FButtonStyle()
-			.SetNormal(FSlateColorBrush(Normal))
-			.SetHovered(FSlateColorBrush(Hovered))
-			.SetPressed(FSlateColorBrush(Pressed))
+			.SetNormal(FSlateRoundedBoxBrush(FLinearColor(0.10f, 0.18f, 0.23f, 0.86f), 28.0f, FLinearColor(0.86f, 0.74f, 0.44f, 0.16f), 1.0f))
+			.SetHovered(FSlateRoundedBoxBrush(FLinearColor(0.18f, 0.27f, 0.33f, 0.92f), 28.0f, FLinearColor(0.95f, 0.84f, 0.54f, 0.30f), 1.3f))
+			.SetPressed(FSlateRoundedBoxBrush(FLinearColor(0.08f, 0.13f, 0.18f, 0.96f), 28.0f, FLinearColor(0.76f, 0.61f, 0.32f, 0.20f), 1.0f))
 			.SetNormalForeground(FLinearColor(0.98f, 0.94f, 0.84f))
 			.SetHoveredForeground(FLinearColor(1.0f, 0.98f, 0.90f))
-			.SetPressedForeground(FLinearColor(0.95f, 0.90f, 0.82f));
+			.SetPressedForeground(FLinearColor(0.95f, 0.90f, 0.82f))
+			.SetPressedPadding(FMargin(0.0f, 2.0f, 0.0f, -2.0f));
 	}
 
 	FButtonStyle BuildTextMenuButtonStyle()
@@ -78,8 +63,16 @@ void SFantasyFrontierFrontEndWidget::Construct(const FArguments& InArgs)
 	OnQuit = InArgs._OnQuit;
 	OnCycleWindowMode = InArgs._OnCycleWindowMode;
 	OnCycleQuality = InArgs._OnCycleQuality;
+	OnCycleShadowQuality = InArgs._OnCycleShadowQuality;
+	OnCycleAntiAliasingQuality = InArgs._OnCycleAntiAliasingQuality;
+	OnCyclePostProcessQuality = InArgs._OnCyclePostProcessQuality;
+	OnCycleViewDistanceQuality = InArgs._OnCycleViewDistanceQuality;
 	WindowModeLabel = InArgs._WindowModeLabel;
 	QualityLabel = InArgs._QualityLabel;
+	ShadowQualityLabel = InArgs._ShadowQualityLabel;
+	AntiAliasingLabel = InArgs._AntiAliasingLabel;
+	PostProcessLabel = InArgs._PostProcessLabel;
+	ViewDistanceLabel = InArgs._ViewDistanceLabel;
 
 	SkyBrush = LoadBrush(TEXT("Slate/MenuSky.png"), FVector2D(1920.0f, 1080.0f));
 	MidgroundBrush = LoadBrush(TEXT("Slate/MenuMidground.png"), FVector2D(1920.0f, 1080.0f));
@@ -163,7 +156,22 @@ void SFantasyFrontierFrontEndWidget::Construct(const FArguments& InArgs)
 			.BorderImage(&ScreenTintBrush)
 		]
 		+ SOverlay::Slot()
-		.Padding(FMargin(48.0f, 52.0f, 48.0f, 54.0f))
+		.HAlign(HAlign_Right)
+		.VAlign(VAlign_Top)
+		.Padding(FMargin(0.0f, 48.0f, 58.0f, 0.0f))
+		[
+			SNew(SBorder)
+			.BorderImage(&MenuChipBrush)
+			.Padding(FMargin(18.0f, 12.0f))
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("TitleStatusChip", "Fantasy MMORPG Vertical Slice"))
+				.Font(MakeBodyFont(15))
+				.ColorAndOpacity(FLinearColor(0.96f, 0.92f, 0.82f))
+			]
+		]
+		+ SOverlay::Slot()
+		.Padding(FMargin(54.0f, 56.0f, 54.0f, 54.0f))
 		[
 			SNew(SOverlay)
 			+ SOverlay::Slot()
@@ -209,7 +217,7 @@ void SFantasyFrontierFrontEndWidget::Construct(const FArguments& InArgs)
 				.Padding(FMargin(0.0f, 14.0f, 0.0f, 0.0f))
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("FrontEndTagline", "Sunlit forests. Ancient ruins. Open horizons."))
+					.Text(LOCTEXT("FrontEndTagline", "Calm skies, ancient roads, and the first frontier beyond the ruins."))
 					.Font(MakeBodyFont(20))
 					.ColorAndOpacity_Lambda([this]()
 					{
@@ -218,26 +226,31 @@ void SFantasyFrontierFrontEndWidget::Construct(const FArguments& InArgs)
 				]
 			]
 			+ SOverlay::Slot()
-			.HAlign(HAlign_Center)
+			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Bottom)
-			.Padding(FMargin(0.0f, 0.0f, 0.0f, 74.0f))
+			.Padding(FMargin(62.0f, 0.0f, 0.0f, 70.0f))
 			[
 				BuildMenuFrame()
 			]
 			+ SOverlay::Slot()
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
-			.Padding(FMargin(72.0f, 0.0f, 0.0f, 54.0f))
+			.Padding(FMargin(0.0f, 0.0f, 68.0f, 60.0f))
 			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("ShowcaseCaption", "A brighter frontier stirs beyond the old ruins."))
-				.Font(MakeBodyFont(18))
-				.ColorAndOpacity_Lambda([this]()
-				{
-					return FLinearColor(0.95f, 0.92f, 0.82f, GetShowcaseCaptionOpacity());
-				})
-				.ShadowOffset(FVector2D(0.0f, 2.0f))
-				.ShadowColorAndOpacity(FLinearColor(0.12f, 0.09f, 0.05f, 0.48f))
+				SNew(SBorder)
+				.BorderImage(&MenuChipBrush)
+				.Padding(FMargin(22.0f, 16.0f))
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("ShowcaseCaption", "A brighter frontier stirs beyond the old ruins. Move the mouse or press any key to return."))
+					.Font(MakeBodyFont(18))
+					.ColorAndOpacity_Lambda([this]()
+					{
+						return FLinearColor(0.95f, 0.92f, 0.82f, GetShowcaseCaptionOpacity());
+					})
+					.ShadowOffset(FVector2D(0.0f, 2.0f))
+					.ShadowColorAndOpacity(FLinearColor(0.12f, 0.09f, 0.05f, 0.48f))
+				]
 			]
 		]
 	];
@@ -324,6 +337,34 @@ FReply SFantasyFrontierFrontEndWidget::HandleCycleQuality()
 {
 	ResetIdleTimer();
 	OnCycleQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+FReply SFantasyFrontierFrontEndWidget::HandleCycleShadowQuality()
+{
+	ResetIdleTimer();
+	OnCycleShadowQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+FReply SFantasyFrontierFrontEndWidget::HandleCycleAntiAliasingQuality()
+{
+	ResetIdleTimer();
+	OnCycleAntiAliasingQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+FReply SFantasyFrontierFrontEndWidget::HandleCyclePostProcessQuality()
+{
+	ResetIdleTimer();
+	OnCyclePostProcessQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+FReply SFantasyFrontierFrontEndWidget::HandleCycleViewDistanceQuality()
+{
+	ResetIdleTimer();
+	OnCycleViewDistanceQuality.ExecuteIfBound();
 	return FReply::Handled();
 }
 
@@ -429,7 +470,7 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildMenuFrame()
 		+ SOverlay::Slot()
 		[
 			SNew(SBox)
-			.WidthOverride(430.0f)
+			.WidthOverride(470.0f)
 			[
 				BuildMainMenu()
 			]
@@ -444,120 +485,95 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildMenuFrame()
 
 TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildMainMenu()
 {
-	const FSlateFontInfo HeadingFont = MakeBodyFont(17);
-	const FSlateFontInfo ButtonFont = MakeBodyFont(31);
-	const FSlateColor MenuTextColor = FSlateColor::UseForeground();
+	const FSlateFontInfo HeadingFont = MakeBodyFont(16);
+	const FSlateFontInfo ButtonFont = MakeBodyFont(26);
+	const FSlateColor MenuTextColor = FSlateColor(FLinearColor(0.98f, 0.95f, 0.87f));
 
-	return SNew(SVerticalBox)
+	auto MakeMenuEntry = [this, ButtonFont, MenuTextColor](const FText& Label, FOnClicked ClickedDelegate)
+	{
+		return SNew(SBox)
+			.WidthOverride(382.0f)
+			.HeightOverride(70.0f)
+			[
+				SNew(SButton)
+				.ButtonStyle(&MenuButtonStyle)
+				.ContentPadding(FMargin(18.0f, 10.0f))
+				.OnClicked(ClickedDelegate)
+				[
+					SNew(STextBlock)
+					.Text(Label)
+					.Font(ButtonFont)
+					.ColorAndOpacity(MenuTextColor)
+					.Justification(ETextJustify::Center)
+					.ShadowOffset(FVector2D(0.0f, 2.0f))
+					.ShadowColorAndOpacity(FLinearColor(0.08f, 0.05f, 0.02f, 0.56f))
+				]
+			];
+	};
+
+	return SNew(SBorder)
 		.Visibility(this, &SFantasyFrontierFrontEndWidget::GetMainMenuVisibility)
+		.BorderImage(&MenuPanelFallbackBrush)
 		.RenderTransform(this, &SFantasyFrontierFrontEndWidget::GetPanelTransform)
 		.RenderTransformPivot(FVector2D(0.5f, 1.0f))
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(FMargin(0.0f, 0.0f, 0.0f, 8.0f))
+		.Padding(FMargin(34.0f, 30.0f, 34.0f, 26.0f))
 		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("FrontEndHeading", "MAIN MENU"))
-			.Font(HeadingFont)
-			.ColorAndOpacity(FLinearColor(0.94f, 0.88f, 0.76f, 0.92f))
-			.ShadowOffset(FVector2D(0.0f, 2.0f))
-			.ShadowColorAndOpacity(FLinearColor(0.10f, 0.06f, 0.03f, 0.28f))
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(FMargin(0.0f, 0.0f, 0.0f, 14.0f))
-		[
-			SNew(SBox)
-			.WidthOverride(300.0f)
-			.HeightOverride(14.0f)
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 0.0f, 0.0f, 10.0f))
 			[
-				SNew(SImage)
-				.Image(ResolveBrush(DividerBrush, &DividerFallbackBrush))
-				.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 0.84f))
-			]
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(FMargin(0.0f, 0.0f, 0.0f, 6.0f))
-		[
-			SNew(SBox)
-			.WidthOverride(330.0f)
-			[
-				SNew(SButton)
-				.ButtonStyle(&TextMenuButtonStyle)
-				.ContentPadding(FMargin(16.0f, 10.0f))
-				.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleStartGame)
+				SNew(SBorder)
+				.BorderImage(&MenuChipBrush)
+				.Padding(FMargin(16.0f, 12.0f))
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("StartGame", "START"))
-					.Font(ButtonFont)
-					.ColorAndOpacity(MenuTextColor)
-					.Justification(ETextJustify::Center)
+					.Text(LOCTEXT("FrontEndHeading", "MAIN MENU"))
+					.Font(HeadingFont)
+					.ColorAndOpacity(FLinearColor(0.94f, 0.88f, 0.76f, 0.92f))
 					.ShadowOffset(FVector2D(0.0f, 2.0f))
-					.ShadowColorAndOpacity(FLinearColor(0.10f, 0.05f, 0.02f, 0.64f))
+					.ShadowColorAndOpacity(FLinearColor(0.10f, 0.06f, 0.03f, 0.28f))
 				]
 			]
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(FMargin(0.0f, 0.0f, 0.0f, 6.0f))
-		[
-			SNew(SBox)
-			.WidthOverride(330.0f)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 0.0f, 0.0f, 14.0f))
 			[
-				SNew(SButton)
-				.ButtonStyle(&TextMenuButtonStyle)
-				.ContentPadding(FMargin(16.0f, 10.0f))
-				.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleShowOptions)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("Options", "OPTIONS"))
-					.Font(ButtonFont)
-					.ColorAndOpacity(MenuTextColor)
-					.Justification(ETextJustify::Center)
-					.ShadowOffset(FVector2D(0.0f, 2.0f))
-					.ShadowColorAndOpacity(FLinearColor(0.10f, 0.05f, 0.02f, 0.64f))
-				]
+				SNew(STextBlock)
+				.Text(LOCTEXT("FrontEndMenuBody", "Enter the frontier, tune presentation settings, and keep the slice readable and elegant while the early world grows behind the scenes."))
+				.Font(MakeBodyFont(16))
+				.ColorAndOpacity(FLinearColor(0.80f, 0.88f, 0.94f))
+				.WrapTextAt(360.0f)
 			]
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(FMargin(0.0f, 0.0f, 0.0f, 12.0f))
-		[
-			SNew(SBox)
-			.WidthOverride(330.0f)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 0.0f, 0.0f, 6.0f))
 			[
-				SNew(SButton)
-				.ButtonStyle(&TextMenuButtonStyle)
-				.ContentPadding(FMargin(16.0f, 10.0f))
-				.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleQuit)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("QuitGame", "EXIT"))
-					.Font(ButtonFont)
-					.ColorAndOpacity(MenuTextColor)
-					.Justification(ETextJustify::Center)
-					.ShadowOffset(FVector2D(0.0f, 2.0f))
-					.ShadowColorAndOpacity(FLinearColor(0.10f, 0.05f, 0.02f, 0.64f))
-				]
+				MakeMenuEntry(LOCTEXT("StartGame", "START"), FOnClicked::CreateSP(this, &SFantasyFrontierFrontEndWidget::HandleStartGame))
 			]
-		]
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		[
-			SNew(SBox)
-			.WidthOverride(300.0f)
-			.HeightOverride(14.0f)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 0.0f, 0.0f, 6.0f))
 			[
-				SNew(SImage)
-				.Image(ResolveBrush(DividerBrush, &DividerFallbackBrush))
-				.ColorAndOpacity(FLinearColor(1.0f, 1.0f, 1.0f, 0.78f))
+				MakeMenuEntry(LOCTEXT("Options", "OPTIONS"), FOnClicked::CreateSP(this, &SFantasyFrontierFrontEndWidget::HandleShowOptions))
+			]
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 0.0f, 0.0f, 10.0f))
+			[
+				MakeMenuEntry(LOCTEXT("QuitGame", "EXIT"), FOnClicked::CreateSP(this, &SFantasyFrontierFrontEndWidget::HandleQuit))
+			]
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(FMargin(0.0f, 4.0f, 0.0f, 0.0f))
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("AttractHint", "Stay on the title screen to drift into a calmer attract-mode composition."))
+				.Font(MakeBodyFont(14))
+				.ColorAndOpacity(FLinearColor(0.79f, 0.86f, 0.92f, 0.86f))
+				.ShadowOffset(FVector2D(0.0f, 1.0f))
+				.ShadowColorAndOpacity(FLinearColor(0.08f, 0.04f, 0.02f, 0.40f))
+				.WrapTextAt(360.0f)
 			]
 		];
 }
@@ -568,18 +584,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 	const FSlateFontInfo BodyFont = MakeBodyFont(21);
 
 	return SNew(SBox)
-		.WidthOverride(660.0f)
+		.WidthOverride(700.0f)
 		[
 			SNew(SBorder)
 			.Visibility(this, &SFantasyFrontierFrontEndWidget::GetOptionsVisibility)
-			.BorderImage(ResolveBrush(PanelBrush, &PanelFallbackBrush))
-			.BorderBackgroundColor_Lambda([this]()
-			{
-				return FLinearColor(1.0f, 1.0f, 1.0f, GetOptionsOpacity());
-			})
+			.BorderImage(&MenuPanelFallbackBrush)
 			.RenderTransform(this, &SFantasyFrontierFrontEndWidget::GetPanelTransform)
 			.RenderTransformPivot(FVector2D(0.5f, 1.0f))
-			.Padding(FMargin(48.0f, 42.0f, 48.0f, 40.0f))
+			.Padding(FMargin(40.0f, 34.0f, 40.0f, 34.0f))
 			[
 				SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
@@ -655,6 +667,142 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 							[
 								SNew(STextBlock)
 								.Text(QualityLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						]
+					]
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.FillWidth(1.0f)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("ShadowQuality", "Shadows"))
+						.Font(BodyFont)
+						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
+					]
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCycleShadowQuality)
+							[
+								SNew(STextBlock)
+								.Text(ShadowQualityLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						]
+					]
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.FillWidth(1.0f)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("AntiAliasingQuality", "Anti-Aliasing"))
+						.Font(BodyFont)
+						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
+					]
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCycleAntiAliasingQuality)
+							[
+								SNew(STextBlock)
+								.Text(AntiAliasingLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						]
+					]
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.FillWidth(1.0f)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("PostProcessQuality", "Post Process"))
+						.Font(BodyFont)
+						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
+					]
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCyclePostProcessQuality)
+							[
+								SNew(STextBlock)
+								.Text(PostProcessLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						]
+					]
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.FillWidth(1.0f)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("ViewDistanceQuality", "View Distance"))
+						.Font(BodyFont)
+						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
+					]
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCycleViewDistanceQuality)
+							[
+								SNew(STextBlock)
+								.Text(ViewDistanceLabel)
 								.Font(BodyFont)
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
