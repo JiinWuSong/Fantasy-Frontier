@@ -1,42 +1,30 @@
-# Roadmap
+﻿# Fantasy Frontier Roadmap
 
-## Phase 0: UE5 Reboot
+## Current Phase
+- Step 3C — Body Import / Material Correction
+- Next: Step 4 — Tutorial Zone Prototype
+- After that: Step 5 — Title Screen / UI polish
+- After that: Step 6 — Spawn presentation polish
 
-- Unreal-Engine-5.7-Projekt als neuer `v1/Main`-Startpunkt
-- Startup-Movie, Title Screen und Main Menu in UE5 stabilisieren
-- Git-Repo auf sauberen Unreal-Neustart ausrichten
-- Art-Richtung fuer lebhafte Anime-/Fantasy-Stimmung festziehen
+## Step List
 
-## Phase 1: Frontend Polish
+### Step 3
+- Integrate imported male/female bodies
+- Fix import/material overrides
+- Pass visual QA for creator and spawn
 
-- Intro mit Audio, sauberer Kamerafahrt und staerkerem Reveal ausbauen
-- Options-Menue erweitern
-- eigenes Menu-Level mit starkerer Fantasy-Silhouette bauen
-- Logo und Brand-Sprache weiter ausbauen
+### Step 4
+- Build first tutorial forest prototype
+- Safe spawn zone
+- 3 enemy learning zones
+- class-based spawn points
 
-## Phase 2: Vertical Slice
+### Step 5
+- Title screen visual pass
+- menu composition
+- music polish
 
-- Character Select
-- erste Spielwelt mit Wald-/Sternenhimmel-Atmosphaere
-- MMO-taugliche Third-Person-Kamera
-- Startfigur, Bewegung und erste Combat-Basics
-
-## Phase 3: RPG Foundations
-
-- Attribute, Klassenarchetypen und Fortschritt
-- Inventar- und Equipment-Grundlagen
-- erste Gegnerfamilie
-- Quest-/Dialog-Framework
-
-## Phase 4: MMO Foundations
-
-- Netzwerkstrategie in Unreal festlegen
-- Client-/Server-Trennung konkretisieren
-- persistente Charakterdaten planen
-- Gruppen-, Chat- und Social-Basics vorbereiten
-
-## Offene Designentscheidungen
-
-- exakte Farb-/Stilgrenzen zwischen Anime und Fantasy
-- Startklassen und Combat-Tempo
-- konkrete Online-Architektur fuer den MMO-Pfad
+### Step 6
+- tutorial spawn presentation
+- first guide NPC
+- first player-facing route polish
