@@ -7,6 +7,7 @@ public class TP_ThirdPerson : ModuleRules
 	public TP_ThirdPerson(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		bUseUnity = false;
 
 		PublicDependencyModuleNames.AddRange(new string[] {
 			"Core",
@@ -23,8 +24,22 @@ public class TP_ThirdPerson : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {
 			"SlateCore",
-			"AudioExtensions"
+			"AudioExtensions",
+			"Landscape",
+			"RHI"
 		});
+
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[] {
+				"UnrealEd",
+				"AssetTools",
+				"AssetRegistry",
+				"Foliage",
+				"MaterialEditor",
+				"Water"
+			});
+		}
 
 		PublicIncludePaths.AddRange(new string[] {
 			"TP_ThirdPerson",

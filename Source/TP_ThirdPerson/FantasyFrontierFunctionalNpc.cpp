@@ -69,7 +69,9 @@ AFantasyFrontierFunctionalNpc::AFantasyFrontierFunctionalNpc()
 	NamePlate->SetupAttachment(RootComponent);
 	NamePlate->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
 	NamePlate->SetHorizontalAlignment(EHTA_Center);
-	NamePlate->SetWorldSize(40.0f);
+	NamePlate->SetWorldSize(18.0f);
+	NamePlate->SetVisibility(false, true);
+	NamePlate->SetHiddenInGame(true, true);
 }
 
 void AFantasyFrontierFunctionalNpc::BeginPlay()

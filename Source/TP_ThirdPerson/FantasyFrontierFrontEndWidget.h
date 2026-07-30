@@ -11,6 +11,7 @@
 #include "Widgets/SCompoundWidget.h"
 
 struct FSlateDynamicImageBrush;
+class SSlider;
 
 class SFantasyFrontierFrontEndWidget : public SCompoundWidget
 {
@@ -22,6 +23,8 @@ public:
 		, _AntiAliasingLabel(FText::GetEmpty())
 		, _PostProcessLabel(FText::GetEmpty())
 		, _ViewDistanceLabel(FText::GetEmpty())
+		, _GrassDensityLabel(FText::GetEmpty())
+		, _FoliageDistanceLabel(FText::GetEmpty())
 	{
 	}
 		SLATE_EVENT(FSimpleDelegate, OnStartGame)
@@ -32,12 +35,19 @@ public:
 		SLATE_EVENT(FSimpleDelegate, OnCycleAntiAliasingQuality)
 		SLATE_EVENT(FSimpleDelegate, OnCyclePostProcessQuality)
 		SLATE_EVENT(FSimpleDelegate, OnCycleViewDistanceQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCycleGrassDensityQuality)
+		SLATE_EVENT(FSimpleDelegate, OnCycleFoliageDistanceQuality)
+		SLATE_EVENT(FOnFloatValueChanged, OnMasterVolumeChanged)
 		SLATE_ATTRIBUTE(FText, WindowModeLabel)
 		SLATE_ATTRIBUTE(FText, QualityLabel)
 		SLATE_ATTRIBUTE(FText, ShadowQualityLabel)
 		SLATE_ATTRIBUTE(FText, AntiAliasingLabel)
 		SLATE_ATTRIBUTE(FText, PostProcessLabel)
 		SLATE_ATTRIBUTE(FText, ViewDistanceLabel)
+		SLATE_ATTRIBUTE(FText, GrassDensityLabel)
+		SLATE_ATTRIBUTE(FText, FoliageDistanceLabel)
+		SLATE_ATTRIBUTE(FText, MasterVolumeLabel)
+		SLATE_ATTRIBUTE(float, MasterVolumeValue)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -61,6 +71,9 @@ private:
 	FReply HandleCycleAntiAliasingQuality();
 	FReply HandleCyclePostProcessQuality();
 	FReply HandleCycleViewDistanceQuality();
+	FReply HandleCycleGrassDensityQuality();
+	FReply HandleCycleFoliageDistanceQuality();
+	void HandleMasterVolumeChanged(float NewValue);
 	EVisibility GetMainMenuVisibility() const;
 	EVisibility GetOptionsVisibility() const;
 	FSlateFontInfo MakeTitleFont() const;
@@ -89,12 +102,19 @@ private:
 	FSimpleDelegate OnCycleAntiAliasingQuality;
 	FSimpleDelegate OnCyclePostProcessQuality;
 	FSimpleDelegate OnCycleViewDistanceQuality;
+	FSimpleDelegate OnCycleGrassDensityQuality;
+	FSimpleDelegate OnCycleFoliageDistanceQuality;
+	FOnFloatValueChanged OnMasterVolumeChanged;
 	TAttribute<FText> WindowModeLabel;
 	TAttribute<FText> QualityLabel;
 	TAttribute<FText> ShadowQualityLabel;
 	TAttribute<FText> AntiAliasingLabel;
 	TAttribute<FText> PostProcessLabel;
 	TAttribute<FText> ViewDistanceLabel;
+	TAttribute<FText> GrassDensityLabel;
+	TAttribute<FText> FoliageDistanceLabel;
+	TAttribute<FText> MasterVolumeLabel;
+	TAttribute<float> MasterVolumeValue;
 	TSharedPtr<FSlateDynamicImageBrush> SkyBrush;
 	TSharedPtr<FSlateDynamicImageBrush> MidgroundBrush;
 	TSharedPtr<FSlateDynamicImageBrush> MistBrush;

@@ -84,9 +84,11 @@ AFantasyFrontierEnemyBase::AFantasyFrontierEnemyBase()
 	NamePlate = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NamePlate"));
 	NamePlate->SetupAttachment(RootComponent);
 	NamePlate->SetHorizontalAlignment(EHTA_Center);
-	NamePlate->SetWorldSize(42.0f);
+	NamePlate->SetWorldSize(18.0f);
 	NamePlate->SetRelativeLocation(FVector(0.0f, 0.0f, 140.0f));
 	NamePlate->SetTextRenderColor(FColor::White);
+	NamePlate->SetVisibility(false, true);
+	NamePlate->SetHiddenInGame(true, true);
 
 	ThreatLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("ThreatLight"));
 	ThreatLight->SetupAttachment(RootComponent);

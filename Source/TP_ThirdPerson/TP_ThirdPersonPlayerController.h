@@ -13,6 +13,7 @@ class UAudioComponent;
 class USoundBase;
 class UTextureRenderTarget2D;
 class UFantasyFrontierAppearancePresetSaveGame;
+class UFantasyFrontierUserSettingsSaveGame;
 class SFantasyFrontierFrontEndWidget;
 class SFantasyFrontierCharacterCreatorWidget;
 class AFantasyFrontierCharacterPreviewActor;
@@ -25,7 +26,7 @@ class AFantasyFrontierEnemyBase;
  *  Basic PlayerController class for a third person game
  *  Manages input mappings and the startup front-end flow.
  */
-UCLASS(abstract)
+UCLASS(abstract, Config=Game)
 class ATP_ThirdPersonPlayerController : public APlayerController
 {
 	GENERATED_BODY()
@@ -64,7 +65,7 @@ protected:
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
 
-private:
+public:
 	enum class EFantasyFrontierMusicState : uint8
 	{
 		None,
@@ -76,6 +77,7 @@ private:
 		Shop
 	};
 
+private:
 	void ShowFrontEnd();
 	void HideFrontEnd(bool bStopMusic = true);
 	void ShowCharacterCreator();
@@ -85,6 +87,8 @@ private:
 	void StopFrontEndMusic(float FadeOutDuration = 0.6f);
 	void SetFrontEndMusicState(EFantasyFrontierMusicState DesiredState, float FadeOutDuration = 0.25f);
 	USoundBase* ResolveMusicCue(EFantasyFrontierMusicState DesiredState) const;
+	bool IsExpectedMusicPlaying(EFantasyFrontierMusicState ExpectedState, FString* OutReason = nullptr) const;
+	void SetLivePawnMenuHold(bool bHeld);
 	void StartGameFromFrontEnd();
 	void HandleCharacterCreatorCancelled();
 	void HandleCharacterDraftChanged(FFantasyFrontierCharacterDraft InDraft);
@@ -102,23 +106,42 @@ private:
 	void CycleAntiAliasingQuality();
 	void CyclePostProcessQuality();
 	void CycleViewDistanceQuality();
+	void CycleGrassDensityQuality();
+	void CycleFoliageDistanceQuality();
+	void LoadPersistentSettings();
+	void SavePersistentSettings() const;
+	void SetMasterVolumeValue(float NewValue, bool bPersist);
+	void HandleMasterVolumeChanged(float NewValue);
 	FText GetWindowModeText() const;
 	FText GetQualityLevelText() const;
 	FText GetShadowQualityText() const;
 	FText GetAntiAliasingQualityText() const;
 	FText GetPostProcessQualityText() const;
 	FText GetViewDistanceQualityText() const;
+	FText GetGrassDensityQualityText() const;
+	FText GetFoliageDistanceQualityText() const;
+	FText GetMasterVolumeText() const;
+	float GetMasterVolumeNormalized() const;
+	void ApplyHighlandPerformanceSettings() const;
+	void ApplyMasterVolume();
 	void ApplyAndSaveUserSettings() const;
 	void AdvanceSmokeTest();
 	void RunSmokeMovementPulse();
 	void FinishSmokeTest(bool bSuccess, const FString& FailureReason = FString());
 	void RequestSmokeTestExit();
 	void CaptureSmokeScreenshot(const FString& Label);
+	bool FocusSmokeCameraOnTaggedActor(const FName& CameraTag);
+	void QueueSmokeScreenshotCapture(const FString& Label, float DelaySeconds = 0.18f);
+	void ExecuteQueuedSmokeScreenshot();
+	void BeginSmokeCameraSequence(const FString& CameraTagList);
+	void CaptureNextSmokeCamera();
+	void FrameSmokeWorldView(const FVector& CharacterLocation, const FRotator& ViewRotation);
 	void LogSmokeTestStep(const FString& StepLabel, bool bPassed, const FString& Details = FString()) const;
 	AFantasyFrontierPlayableCharacter* GetSmokePlayerCharacter() const;
 	AFantasyFrontierPlayableCharacter* EnsurePlayableCharacterPawn();
 	AFantasyFrontierTutorialDirector* GetSmokeTutorialDirector() const;
 	AFantasyFrontierTutorialDirector* EnsureTutorialDirector() const;
+	bool ValidateHighlandHillGrounding(AFantasyFrontierPlayableCharacter* PlayerCharacter);
 	AFantasyFrontierFunctionalNpc* FindNpcByRole(uint8 RoleValue) const;
 	AFantasyFrontierEnemyBase* FindFirstEnemy() const;
 
@@ -146,6 +169,22 @@ private:
 	FTimerHandle SmokeStepTimer;
 	FTimerHandle SmokeMoveTimer;
 	FTimerHandle SmokeExitTimer;
+	FTimerHandle SmokeCaptureTimer;
 	TWeakObjectPtr<AFantasyFrontierEnemyBase> SmokeTrackedEnemy;
+	FString PendingSmokeCaptureLabel;
+	TArray<FString> PendingSmokeCameraTags;
+	int32 PendingSmokeCameraIndex = 0;
+
+	UPROPERTY(Config)
+	float MasterVolume = 0.30f;
+
+	UPROPERTY(Config)
+	int32 GrassDensityQuality = 2;
+
+	UPROPERTY(Config)
+	int32 FoliageDistanceQuality = 2;
+
+	static inline const TCHAR* UserSettingsSlotName = TEXT("FantasyFrontierUserSettings");
+	static constexpr int32 UserSettingsSlotIndex = 0;
 
 };

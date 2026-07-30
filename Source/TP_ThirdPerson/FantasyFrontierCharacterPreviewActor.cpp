@@ -80,31 +80,31 @@ namespace
 		return AnimClass;
 	}
 
-	UStaticMesh* GetCubeMesh()
+	UStaticMesh* GetPreviewStageCubeMesh()
 	{
 		static UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
 		return Mesh;
 	}
 
-	UStaticMesh* GetSphereMesh()
+	UStaticMesh* GetPreviewStageSphereMesh()
 	{
 		static UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 		return Mesh;
 	}
 
-	UStaticMesh* GetCylinderMesh()
+	UStaticMesh* GetPreviewStageCylinderMesh()
 	{
 		static UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
 		return Mesh;
 	}
 
-	UStaticMesh* GetConeMesh()
+	UStaticMesh* GetPreviewStageConeMesh()
 	{
 		static UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cone.Cone"));
 		return Mesh;
 	}
 
-	UMaterialInterface* GetBasicShapeMaterial()
+	UMaterialInterface* GetPreviewStageBasicShapeMaterial()
 	{
 		static UMaterialInterface* Material = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
 		return Material;
@@ -247,7 +247,7 @@ AFantasyFrontierCharacterPreviewActor::AFantasyFrontierCharacterPreviewActor()
 		Component->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Component->SetCastShadow(true);
 		Component->SetStaticMesh(Mesh);
-		if (UMaterialInterface* Material = GetBasicShapeMaterial())
+		if (UMaterialInterface* Material = GetPreviewStageBasicShapeMaterial())
 		{
 			Component->SetMaterial(0, Material);
 		}
@@ -267,7 +267,7 @@ AFantasyFrontierCharacterPreviewActor::AFantasyFrontierCharacterPreviewActor()
 		Component->SetRelativeLocation(Location);
 		Component->SetRelativeRotation(Rotation);
 		Component->SetRelativeScale3D(Scale);
-		if (UMaterialInterface* Material = GetBasicShapeMaterial())
+		if (UMaterialInterface* Material = GetPreviewStageBasicShapeMaterial())
 		{
 			Component->SetMaterial(0, Material);
 		}
@@ -280,11 +280,11 @@ AFantasyFrontierCharacterPreviewActor::AFantasyFrontierCharacterPreviewActor()
 	StageAccentLeft = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StageAccentLeft"));
 	StageAccentRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StageAccentRight"));
 
-	ConfigureStageMesh(StageBackdrop, GetCubeMesh(), FVector(0.06f, 5.4f, 6.4f), FVector(-248.0f, 0.0f, 176.0f), FRotator::ZeroRotator, FLinearColor(0.16f, 0.25f, 0.33f, 1.0f));
-	ConfigureStageMesh(StageHalo, GetSphereMesh(), FVector(1.8f, 0.04f, 1.8f), FVector(-232.0f, 0.0f, 220.0f), FRotator::ZeroRotator, FLinearColor(0.54f, 0.68f, 0.80f, 1.0f));
-	ConfigureStageMesh(StagePedestal, GetCylinderMesh(), FVector(1.65f, 1.65f, 0.06f), FVector(0.0f, 0.0f, -112.0f), FRotator::ZeroRotator, FLinearColor(0.15f, 0.20f, 0.24f, 1.0f));
-	ConfigureStageMesh(StageAccentLeft, GetCylinderMesh(), FVector(0.01f, 0.01f, 0.01f), FVector(-300.0f, -320.0f, -300.0f), FRotator::ZeroRotator, FLinearColor::Black);
-	ConfigureStageMesh(StageAccentRight, GetCylinderMesh(), FVector(0.01f, 0.01f, 0.01f), FVector(-300.0f, 320.0f, -300.0f), FRotator::ZeroRotator, FLinearColor::Black);
+	ConfigureStageMesh(StageBackdrop, GetPreviewStageCubeMesh(), FVector(0.06f, 5.4f, 6.4f), FVector(-248.0f, 0.0f, 176.0f), FRotator::ZeroRotator, FLinearColor(0.16f, 0.25f, 0.33f, 1.0f));
+	ConfigureStageMesh(StageHalo, GetPreviewStageSphereMesh(), FVector(1.8f, 0.04f, 1.8f), FVector(-232.0f, 0.0f, 220.0f), FRotator::ZeroRotator, FLinearColor(0.54f, 0.68f, 0.80f, 1.0f));
+	ConfigureStageMesh(StagePedestal, GetPreviewStageCylinderMesh(), FVector(1.65f, 1.65f, 0.06f), FVector(0.0f, 0.0f, -112.0f), FRotator::ZeroRotator, FLinearColor(0.15f, 0.20f, 0.24f, 1.0f));
+	ConfigureStageMesh(StageAccentLeft, GetPreviewStageCylinderMesh(), FVector(0.01f, 0.01f, 0.01f), FVector(-300.0f, -320.0f, -300.0f), FRotator::ZeroRotator, FLinearColor::Black);
+	ConfigureStageMesh(StageAccentRight, GetPreviewStageCylinderMesh(), FVector(0.01f, 0.01f, 0.01f), FVector(-300.0f, 320.0f, -300.0f), FRotator::ZeroRotator, FLinearColor::Black);
 
 	HairCap = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HairCap"));
 	HairBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HairBack"));
@@ -305,24 +305,24 @@ AFantasyFrontierCharacterPreviewActor::AFantasyFrontierCharacterPreviewActor()
 	OriginHornLeft = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OriginHornLeft"));
 	OriginHornRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("OriginHornRight"));
 
-	ConfigureAdornment(HairCap, PreviewMesh, GetSphereMesh(), TEXT("head"));
-	ConfigureAdornment(HairBack, PreviewMesh, GetSphereMesh(), TEXT("head"));
-	ConfigureAdornment(HairTail, PreviewMesh, GetCylinderMesh(), TEXT("head"));
-	ConfigureAdornment(EyeLeft, PreviewMesh, GetSphereMesh(), TEXT("head"));
-	ConfigureAdornment(EyeRight, PreviewMesh, GetSphereMesh(), TEXT("head"));
-	ConfigureAdornment(StarterTorso, PreviewMesh, GetCubeMesh(), TEXT("spine_03"));
-	ConfigureAdornment(StarterBelt, PreviewMesh, GetCylinderMesh(), TEXT("pelvis"));
-	ConfigureAdornment(StarterShoulderLeft, PreviewMesh, GetCubeMesh(), TEXT("upperarm_l"));
-	ConfigureAdornment(StarterShoulderRight, PreviewMesh, GetCubeMesh(), TEXT("upperarm_r"));
-	ConfigureAdornment(StarterBootLeft, PreviewMesh, GetCubeMesh(), TEXT("calf_l"));
-	ConfigureAdornment(StarterBootRight, PreviewMesh, GetCubeMesh(), TEXT("calf_r"));
-	ConfigureAdornment(UnderwearBottom, PreviewMesh, GetCylinderMesh(), TEXT("pelvis"));
-	ConfigureAdornment(UnderwearBra, PreviewMesh, GetCubeMesh(), TEXT("spine_03"));
-	ConfigureAdornment(TattooBand, PreviewMesh, GetCylinderMesh(), TEXT("upperarm_l"));
-	ConfigureAdornment(ScarStripe, PreviewMesh, GetCubeMesh(), TEXT("head"));
-	ConfigureAdornment(OriginCrest, PreviewMesh, GetSphereMesh(), TEXT("spine_03"));
-	ConfigureAdornment(OriginHornLeft, PreviewMesh, GetConeMesh(), TEXT("head"));
-	ConfigureAdornment(OriginHornRight, PreviewMesh, GetConeMesh(), TEXT("head"));
+	ConfigureAdornment(HairCap, PreviewMesh, GetPreviewStageSphereMesh(), TEXT("head"));
+	ConfigureAdornment(HairBack, PreviewMesh, GetPreviewStageSphereMesh(), TEXT("head"));
+	ConfigureAdornment(HairTail, PreviewMesh, GetPreviewStageCylinderMesh(), TEXT("head"));
+	ConfigureAdornment(EyeLeft, PreviewMesh, GetPreviewStageSphereMesh(), TEXT("head"));
+	ConfigureAdornment(EyeRight, PreviewMesh, GetPreviewStageSphereMesh(), TEXT("head"));
+	ConfigureAdornment(StarterTorso, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("spine_03"));
+	ConfigureAdornment(StarterBelt, PreviewMesh, GetPreviewStageCylinderMesh(), TEXT("pelvis"));
+	ConfigureAdornment(StarterShoulderLeft, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("upperarm_l"));
+	ConfigureAdornment(StarterShoulderRight, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("upperarm_r"));
+	ConfigureAdornment(StarterBootLeft, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("calf_l"));
+	ConfigureAdornment(StarterBootRight, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("calf_r"));
+	ConfigureAdornment(UnderwearBottom, PreviewMesh, GetPreviewStageCylinderMesh(), TEXT("pelvis"));
+	ConfigureAdornment(UnderwearBra, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("spine_03"));
+	ConfigureAdornment(TattooBand, PreviewMesh, GetPreviewStageCylinderMesh(), TEXT("upperarm_l"));
+	ConfigureAdornment(ScarStripe, PreviewMesh, GetPreviewStageCubeMesh(), TEXT("head"));
+	ConfigureAdornment(OriginCrest, PreviewMesh, GetPreviewStageSphereMesh(), TEXT("spine_03"));
+	ConfigureAdornment(OriginHornLeft, PreviewMesh, GetPreviewStageConeMesh(), TEXT("head"));
+	ConfigureAdornment(OriginHornRight, PreviewMesh, GetPreviewStageConeMesh(), TEXT("head"));
 }
 
 void AFantasyFrontierCharacterPreviewActor::Tick(float DeltaSeconds)

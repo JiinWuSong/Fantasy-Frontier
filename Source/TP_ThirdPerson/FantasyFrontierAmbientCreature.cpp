@@ -58,8 +58,10 @@ AFantasyFrontierAmbientCreature::AFantasyFrontierAmbientCreature()
 	NamePlate = CreateDefaultSubobject<UTextRenderComponent>(TEXT("NamePlate"));
 	NamePlate->SetupAttachment(SceneRoot);
 	NamePlate->SetHorizontalAlignment(EHTA_Center);
-	NamePlate->SetWorldSize(36.0f);
+	NamePlate->SetWorldSize(16.0f);
 	NamePlate->SetRelativeLocation(FVector(0.0f, 0.0f, 110.0f));
+	NamePlate->SetVisibility(false, true);
+	NamePlate->SetHiddenInGame(true, true);
 
 	if (UMaterialInterface* Material = GetBasicShapeMaterial())
 	{

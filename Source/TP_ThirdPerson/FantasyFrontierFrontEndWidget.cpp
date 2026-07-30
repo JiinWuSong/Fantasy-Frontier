@@ -9,6 +9,7 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "Widgets/Images/SImage.h"
 #include "Widgets/Input/SButton.h"
+#include "Widgets/Input/SSlider.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SScaleBox.h"
@@ -21,7 +22,7 @@
 
 namespace
 {
-	TSharedPtr<FSlateDynamicImageBrush> LoadBrush(const TCHAR* RelativePath, const FVector2D& Size)
+	TSharedPtr<FSlateDynamicImageBrush> LoadFrontEndBrush(const TCHAR* RelativePath, const FVector2D& Size)
 	{
 		const FString FullPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir() / RelativePath);
 		if (!FPlatformFileManager::Get().GetPlatformFile().FileExists(*FullPath))
@@ -67,23 +68,30 @@ void SFantasyFrontierFrontEndWidget::Construct(const FArguments& InArgs)
 	OnCycleAntiAliasingQuality = InArgs._OnCycleAntiAliasingQuality;
 	OnCyclePostProcessQuality = InArgs._OnCyclePostProcessQuality;
 	OnCycleViewDistanceQuality = InArgs._OnCycleViewDistanceQuality;
+	OnCycleGrassDensityQuality = InArgs._OnCycleGrassDensityQuality;
+	OnCycleFoliageDistanceQuality = InArgs._OnCycleFoliageDistanceQuality;
+	OnMasterVolumeChanged = InArgs._OnMasterVolumeChanged;
 	WindowModeLabel = InArgs._WindowModeLabel;
 	QualityLabel = InArgs._QualityLabel;
 	ShadowQualityLabel = InArgs._ShadowQualityLabel;
 	AntiAliasingLabel = InArgs._AntiAliasingLabel;
 	PostProcessLabel = InArgs._PostProcessLabel;
 	ViewDistanceLabel = InArgs._ViewDistanceLabel;
+	GrassDensityLabel = InArgs._GrassDensityLabel;
+	FoliageDistanceLabel = InArgs._FoliageDistanceLabel;
+	MasterVolumeLabel = InArgs._MasterVolumeLabel;
+	MasterVolumeValue = InArgs._MasterVolumeValue;
 
-	SkyBrush = LoadBrush(TEXT("Slate/MenuSky.png"), FVector2D(1920.0f, 1080.0f));
-	MidgroundBrush = LoadBrush(TEXT("Slate/MenuMidground.png"), FVector2D(1920.0f, 1080.0f));
-	MistBrush = LoadBrush(TEXT("Slate/MenuMist.png"), FVector2D(1920.0f, 1080.0f));
-	ForegroundBrush = LoadBrush(TEXT("Slate/MenuForeground.png"), FVector2D(1920.0f, 1080.0f));
-	TitleLogoBrush = LoadBrush(TEXT("Slate/TitleLogo.png"), FVector2D(1660.0f, 320.0f));
-	DividerBrush = LoadBrush(TEXT("Slate/TitleDivider.png"), FVector2D(1600.0f, 40.0f));
-	PanelBrush = LoadBrush(TEXT("Slate/MenuPanel.png"), FVector2D(920.0f, 560.0f));
-	ButtonNormalBrush = LoadBrush(TEXT("Slate/MenuButton.png"), FVector2D(640.0f, 156.0f));
-	ButtonHoveredBrush = LoadBrush(TEXT("Slate/MenuButtonHover.png"), FVector2D(640.0f, 156.0f));
-	ButtonPressedBrush = LoadBrush(TEXT("Slate/MenuButtonPressed.png"), FVector2D(640.0f, 156.0f));
+	SkyBrush = LoadFrontEndBrush(TEXT("Slate/MenuSky.png"), FVector2D(1920.0f, 1080.0f));
+	MidgroundBrush = LoadFrontEndBrush(TEXT("Slate/MenuMidground.png"), FVector2D(1920.0f, 1080.0f));
+	MistBrush = LoadFrontEndBrush(TEXT("Slate/MenuMist.png"), FVector2D(1920.0f, 1080.0f));
+	ForegroundBrush = LoadFrontEndBrush(TEXT("Slate/MenuForeground.png"), FVector2D(1920.0f, 1080.0f));
+	TitleLogoBrush = LoadFrontEndBrush(TEXT("Slate/TitleLogo.png"), FVector2D(1660.0f, 320.0f));
+	DividerBrush = LoadFrontEndBrush(TEXT("Slate/TitleDivider.png"), FVector2D(1600.0f, 40.0f));
+	PanelBrush = LoadFrontEndBrush(TEXT("Slate/MenuPanel.png"), FVector2D(920.0f, 560.0f));
+	ButtonNormalBrush = LoadFrontEndBrush(TEXT("Slate/MenuButton.png"), FVector2D(640.0f, 156.0f));
+	ButtonHoveredBrush = LoadFrontEndBrush(TEXT("Slate/MenuButtonHover.png"), FVector2D(640.0f, 156.0f));
+	ButtonPressedBrush = LoadFrontEndBrush(TEXT("Slate/MenuButtonPressed.png"), FVector2D(640.0f, 156.0f));
 	MenuButtonStyle = BuildMenuButtonStyle(ButtonNormalBrush.Get(), ButtonHoveredBrush.Get(), ButtonPressedBrush.Get());
 	TextMenuButtonStyle = BuildTextMenuButtonStyle();
 
@@ -368,6 +376,26 @@ FReply SFantasyFrontierFrontEndWidget::HandleCycleViewDistanceQuality()
 	return FReply::Handled();
 }
 
+FReply SFantasyFrontierFrontEndWidget::HandleCycleGrassDensityQuality()
+{
+	ResetIdleTimer();
+	OnCycleGrassDensityQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+FReply SFantasyFrontierFrontEndWidget::HandleCycleFoliageDistanceQuality()
+{
+	ResetIdleTimer();
+	OnCycleFoliageDistanceQuality.ExecuteIfBound();
+	return FReply::Handled();
+}
+
+void SFantasyFrontierFrontEndWidget::HandleMasterVolumeChanged(float NewValue)
+{
+	ResetIdleTimer();
+	OnMasterVolumeChanged.ExecuteIfBound(NewValue);
+}
+
 EVisibility SFantasyFrontierFrontEndWidget::GetMainMenuVisibility() const
 {
 	return (bShowingOptions || ShowcaseBlend > 0.02f) ? EVisibility::Collapsed : EVisibility::Visible;
@@ -583,6 +611,25 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 	const FSlateFontInfo HeadingFont = MakeBodyFont(28);
 	const FSlateFontInfo BodyFont = MakeBodyFont(21);
 
+	auto MakeOptionRow = [this, BodyFont](const FText& Label, TSharedRef<SWidget> ControlWidget)
+	{
+		return SNew(SHorizontalBox)
+			+ SHorizontalBox::Slot()
+			.FillWidth(1.0f)
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text(Label)
+				.Font(BodyFont)
+				.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
+			]
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				ControlWidget
+			];
+	};
+
 	return SNew(SBox)
 		.WidthOverride(700.0f)
 		[
@@ -610,19 +657,8 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 10.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("WindowMode", "Display Mode"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("WindowMode", "Display Mode"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -637,26 +673,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Quality", "Graphics Preset"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("Quality", "Graphics Preset"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -671,26 +695,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("ShadowQuality", "Shadows"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("ShadowQuality", "Shadows"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -705,26 +717,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("AntiAliasingQuality", "Anti-Aliasing"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("AntiAliasingQuality", "Anti-Aliasing"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -739,26 +739,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("PostProcessQuality", "Post Process"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("PostProcessQuality", "Post Process"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -773,26 +761,14 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
 				[
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					.FillWidth(1.0f)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("ViewDistanceQuality", "View Distance"))
-						.Font(BodyFont)
-						.ColorAndOpacity(FLinearColor(0.89f, 0.82f, 0.70f))
-					]
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
+					MakeOptionRow(
+						LOCTEXT("ViewDistanceQuality", "View Distance"),
 						SNew(SBox)
 						.WidthOverride(248.0f)
 						[
@@ -807,8 +783,80 @@ TSharedRef<SWidget> SFantasyFrontierFrontEndWidget::BuildOptionsMenu()
 								.Justification(ETextJustify::Center)
 								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
 							]
-						]
-					]
+						])
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					MakeOptionRow(
+						LOCTEXT("GrassDensityQuality", "Grass Density"),
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCycleGrassDensityQuality)
+							[
+								SNew(STextBlock)
+								.Text(GrassDensityLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						])
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					MakeOptionRow(
+						LOCTEXT("FoliageDistanceQuality", "Foliage Distance"),
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SButton)
+							.ButtonStyle(&MenuButtonStyle)
+							.ContentPadding(FMargin(18.0f, 14.0f))
+							.OnClicked(this, &SFantasyFrontierFrontEndWidget::HandleCycleFoliageDistanceQuality)
+							[
+								SNew(STextBlock)
+								.Text(FoliageDistanceLabel)
+								.Font(BodyFont)
+								.Justification(ETextJustify::Center)
+								.ColorAndOpacity(FLinearColor(0.98f, 0.94f, 0.86f))
+							]
+						])
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(FMargin(0.0f, 16.0f, 0.0f, 0.0f))
+				[
+					MakeOptionRow(
+						LOCTEXT("MasterVolume", "Master Volume"),
+						SNew(SBox)
+						.WidthOverride(248.0f)
+						[
+							SNew(SVerticalBox)
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(SSlider)
+								.Value(MasterVolumeValue)
+								.OnValueChanged(this, &SFantasyFrontierFrontEndWidget::HandleMasterVolumeChanged)
+							]
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.HAlign(HAlign_Center)
+							.Padding(FMargin(0.0f, 6.0f, 0.0f, 0.0f))
+							[
+								SNew(STextBlock)
+								.Text(MasterVolumeLabel)
+								.Font(MakeBodyFont(16))
+								.ColorAndOpacity(FLinearColor(0.95f, 0.92f, 0.82f))
+							]
+						])
 				]
 				+ SVerticalBox::Slot()
 				.AutoHeight()
