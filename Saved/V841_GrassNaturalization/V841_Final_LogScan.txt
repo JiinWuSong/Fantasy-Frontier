@@ -1,0 +1,19 @@
+﻿V84.1 FINAL LOG SCAN
+2026-07-30 16:50:23
+
+FILE|Saved\V841_GrassNaturalization\V841_FinalRollout_NaturalPatchMasks.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_GrassMapBuild_NaturalPatch.log|hard_blockers=0|pass_markers=2|memory_pressure_warnings=4|fab_eos_warnings=1
+FILE|Saved\V841_GrassNaturalization\V841_EditorBuild_PerformanceWindow.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_FinalNatural_HIGH.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_FinalNatural_LOW_Validated.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_FinalNatural_WindSequence.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_FinalNatural_TopDownWarm.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+FILE|C:\Users\david\Desktop\Fantasy Frontier\Saved\V841_GrassNaturalization\V841_Performance_30Stationary_60Movement_HIGH_20260730_162654.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=2|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_Package_stdout.log|hard_blockers=0|pass_markers=2|memory_pressure_warnings=148|fab_eos_warnings=0
+FILE|Saved\V841_GrassNaturalization\V841_PackagedSmoke_stdout.log|hard_blockers=0|pass_markers=1|memory_pressure_warnings=0|fab_eos_warnings=0
+
+SUMMARY|hard_blockers=0
+SUMMARY|package_memory_pressure_warnings=nonfatal; BuildCookRun ExitCode=0
+SUMMARY|Fab EOS editor-only warning=pre-existing/nonblocking
+SUMMARY|material_compile_or_fallback_blockers=0
+SUMMARY|crash_assert_gpu_smoke_fail_blockers=0

@@ -2697,9 +2697,33 @@ void ATP_ThirdPersonPlayerController::AdvanceSmokeTest()
 		ApplyMenuInputState(false, nullptr);
 		SetLivePawnMenuHold(false);
 		SmokeMovementStart = PlayerCharacter->GetActorLocation();
-		SmokeMoveTicksRemaining = 24;
-		GetWorldTimerManager().SetTimer(SmokeMoveTimer, this, &ThisClass::RunSmokeMovementPulse, 0.05f, true);
-		GetWorldTimerManager().SetTimer(SmokeStepTimer, this, &ThisClass::AdvanceSmokeTest, 1.80f, false);
+		float SmokeStationarySeconds = 0.0f;
+		float SmokeMovementSeconds = 1.2f;
+		FParse::Value(FCommandLine::Get(), TEXT("FFSmokeStationarySeconds="), SmokeStationarySeconds);
+		FParse::Value(FCommandLine::Get(), TEXT("FFSmokeMovementSeconds="), SmokeMovementSeconds);
+		SmokeStationarySeconds = FMath::Clamp(SmokeStationarySeconds, 0.0f, 30.0f);
+		SmokeMovementSeconds = FMath::Clamp(SmokeMovementSeconds, 1.2f, 60.0f);
+		constexpr float SmokeMovementPulseSeconds = 0.05f;
+		SmokeMoveTicksRemaining = FMath::CeilToInt(SmokeMovementSeconds / SmokeMovementPulseSeconds);
+		GetWorldTimerManager().SetTimer(
+			SmokeMoveTimer,
+			this,
+			&ThisClass::RunSmokeMovementPulse,
+			SmokeMovementPulseSeconds,
+			true,
+			SmokeStationarySeconds);
+		GetWorldTimerManager().SetTimer(
+			SmokeStepTimer,
+			this,
+			&ThisClass::AdvanceSmokeTest,
+			SmokeStationarySeconds + SmokeMovementSeconds + 0.60f,
+			false);
+		UE_LOG(
+			LogTP_ThirdPerson,
+			Display,
+			TEXT("FFSmoke PerformanceWindow stationary=%.1fs movement=%.1fs"),
+			SmokeStationarySeconds,
+			SmokeMovementSeconds);
 		return;
 	}
 	case 9:
@@ -3271,14 +3295,23 @@ void ATP_ThirdPersonPlayerController::CaptureNextSmokeCamera()
 	}
 
 	FString Label = CameraTag;
-	Label.ReplaceInline(TEXT("FFSmokeHighlandV832"), TEXT(""));
+	FString CaptureVersion = TEXT("V832");
+	if (Label.Contains(TEXT("FFSmokeHighlandV841")))
+	{
+		Label.ReplaceInline(TEXT("FFSmokeHighlandV841"), TEXT(""));
+		CaptureVersion = TEXT("V841");
+	}
+	else
+	{
+		Label.ReplaceInline(TEXT("FFSmokeHighlandV832"), TEXT(""));
+	}
 	Label.ReplaceInline(TEXT("Camera"), TEXT(""));
 	Label.TrimStartAndEndInline();
 	if (Label.IsEmpty())
 	{
 		Label = CameraTag;
 	}
-	Label = FString::Printf(TEXT("V832_%02d_%s"), CameraNumber, *Label);
+	Label = FString::Printf(TEXT("%s_%02d_%s"), *CaptureVersion, CameraNumber, *Label);
 
 	float CameraWarmupSeconds = 0.18f;
 	FParse::Value(FCommandLine::Get(), TEXT("FFSmokeCameraWarmup="), CameraWarmupSeconds);

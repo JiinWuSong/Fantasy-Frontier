@@ -30,13 +30,25 @@ namespace
 	const TCHAR* GrassMeshPaths[] = {
 		TEXT("/Game/Environment/Foliage/Meshes/SM_GrassBlade.SM_GrassBlade"),
 		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_A.Ryegrass_Grass_A"),
-		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_C.Ryegrass_Grass_C")
+		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_C.Ryegrass_Grass_C"),
+		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_D.Ryegrass_Grass_D"),
+		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Rye_Tuft.Ryegrass_Rye_Tuft"),
+		TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Stalk_Green.Ryegrass_Stalk_Green"),
+		TEXT("/Game/Environment/Foliage/Grass/Titan_Lilium_Reedgrass.Titan_Lilium_Reedgrass"),
+		TEXT("/Game/Environment/Foliage/Grass/SM_Grass01.SM_Grass01"),
+		TEXT("/Game/Environment/Foliage/Grass/SM_Grass_Forest_03.SM_Grass_Forest_03"),
+		TEXT("/Game/Environment/Foliage/Grass/SM_Grass_Flaten.SM_Grass_Flaten")
 	};
 
 	const TCHAR* GrassMaterialPaths[] = {
 		TEXT("/Game/Environment/Foliage/Materials/M_GrassBlade.M_GrassBlade"),
 		TEXT("/Game/Environment/Foliage/Materials/MI_GrassBlade.MI_GrassBlade"),
 		TEXT("/Game/Environment/Foliage/Materials/MI_GrassBladeDarker.MI_GrassBladeDarker"),
+		TEXT("/Game/Environment/Clifftop/Materials/Foliage/MI_Clifftop_Ryegrass.MI_Clifftop_Ryegrass"),
+		TEXT("/Game/Environment/Arctic/Materials/Foliage/MI_Grass_Forest_03.MI_Grass_Forest_03"),
+		TEXT("/Game/Environment/StarterIsland/Meshes/SmallIsland/Foliage_wn/MI_Grass_Flat.MI_Grass_Flat"),
+		TEXT("/Game/Environment/Tropic/Loong/Materials/MI_Tropic_Vine_002.MI_Tropic_Vine_002"),
+		TEXT("/Game/Environment/Clifftop/Materials/Foliage/M_Reeds.M_Reeds"),
 		TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_Soft.M_FF_Highland_GrassBlade_Soft")
 	};
 
@@ -91,6 +103,51 @@ namespace
 			Material && Material->TwoSided ? TEXT("true") : TEXT("false"),
 			Material && Material->bUsedWithInstancedStaticMeshes ? TEXT("true") : TEXT("false"));
 
+		TArray<FMaterialParameterInfo> ParameterInfos;
+		TArray<FGuid> ParameterIds;
+		MaterialInterface->GetAllScalarParameterInfo(ParameterInfos, ParameterIds);
+		for (const FMaterialParameterInfo& ParameterInfo : ParameterInfos)
+		{
+			float Value = 0.0f;
+			if (MaterialInterface->GetScalarParameterValue(ParameterInfo, Value))
+			{
+				UE_LOG(LogTemp, Display, TEXT("TitanGrassAudit: scalar material=%s name=%s value=%.6f"),
+					*MaterialInterface->GetPathName(),
+					*ParameterInfo.Name.ToString(),
+					Value);
+			}
+		}
+
+		ParameterInfos.Reset();
+		ParameterIds.Reset();
+		MaterialInterface->GetAllVectorParameterInfo(ParameterInfos, ParameterIds);
+		for (const FMaterialParameterInfo& ParameterInfo : ParameterInfos)
+		{
+			FLinearColor Value = FLinearColor::Black;
+			if (MaterialInterface->GetVectorParameterValue(ParameterInfo, Value))
+			{
+				UE_LOG(LogTemp, Display, TEXT("TitanGrassAudit: vector material=%s name=%s value=%s"),
+					*MaterialInterface->GetPathName(),
+					*ParameterInfo.Name.ToString(),
+					*Value.ToString());
+			}
+		}
+
+		ParameterInfos.Reset();
+		ParameterIds.Reset();
+		MaterialInterface->GetAllTextureParameterInfo(ParameterInfos, ParameterIds);
+		for (const FMaterialParameterInfo& ParameterInfo : ParameterInfos)
+		{
+			UTexture* Value = nullptr;
+			if (MaterialInterface->GetTextureParameterValue(ParameterInfo, Value))
+			{
+				UE_LOG(LogTemp, Display, TEXT("TitanGrassAudit: texture material=%s name=%s value=%s"),
+					*MaterialInterface->GetPathName(),
+					*ParameterInfo.Name.ToString(),
+					Value ? *Value->GetPathName() : TEXT("None"));
+			}
+		}
+
 		LogPackageDependencies(MaterialInterface->GetPathName());
 		if (Material)
 		{
@@ -121,6 +178,14 @@ namespace
 				*Mesh->GetPathName(),
 				MaterialIndex,
 				Material ? *Material->GetPathName() : TEXT("None"));
+			if (Material)
+			{
+				LogPackageDependencies(Material->GetPathName());
+				if (UMaterial* BaseMaterial = Material->GetMaterial())
+				{
+					LogPackageDependencies(BaseMaterial->GetPathName());
+				}
+			}
 		}
 	}
 
