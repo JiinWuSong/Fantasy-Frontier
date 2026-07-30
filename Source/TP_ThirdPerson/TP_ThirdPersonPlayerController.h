@@ -174,6 +174,9 @@ private:
 	FString PendingSmokeCaptureLabel;
 	TArray<FString> PendingSmokeCameraTags;
 	int32 PendingSmokeCameraIndex = 0;
+	bool bSmokeV842WindProof = false;
+	float SmokeV842WindProofStartSeconds = -1.0f;
+	int32 SmokeV842WindProofFrameIndex = 0;
 
 	UPROPERTY(Config)
 	float MasterVolume = 0.30f;

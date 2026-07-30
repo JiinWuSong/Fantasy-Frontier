@@ -1,0 +1,68 @@
+{
+  "method": "Mean absolute RGB image difference normalized to [0,1]; fixed camera/exposure/scalability.",
+  "base_region_rows": [
+    360,
+    449
+  ],
+  "upper_region_rows": [
+    180,
+    269
+  ],
+  "image_size": [
+    800,
+    450
+  ],
+  "frames": [
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\01_V842_Wind_T0000ms.png",
+      "actual_timestamp_ms": 0,
+      "normalized_mean_absolute_difference_vs_t0": 0.0,
+      "normalized_mean_absolute_difference_vs_previous": 0.0,
+      "base_region_motion_estimate": 0.0,
+      "upper_region_motion_estimate": 0.0
+    },
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\02_V842_Wind_T0325ms.png",
+      "actual_timestamp_ms": 325,
+      "normalized_mean_absolute_difference_vs_t0": 0.030714,
+      "normalized_mean_absolute_difference_vs_previous": 0.030714,
+      "base_region_motion_estimate": 0.021898,
+      "upper_region_motion_estimate": 0.049779
+    },
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\03_V842_Wind_T0662ms.png",
+      "actual_timestamp_ms": 662,
+      "normalized_mean_absolute_difference_vs_t0": 0.034367,
+      "normalized_mean_absolute_difference_vs_previous": 0.007989,
+      "base_region_motion_estimate": 0.025437,
+      "upper_region_motion_estimate": 0.054616
+    },
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\04_V842_Wind_T1008ms.png",
+      "actual_timestamp_ms": 1008,
+      "normalized_mean_absolute_difference_vs_t0": 0.037192,
+      "normalized_mean_absolute_difference_vs_previous": 0.008251,
+      "base_region_motion_estimate": 0.028284,
+      "upper_region_motion_estimate": 0.05861
+    },
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\05_V842_Wind_T1508ms.png",
+      "actual_timestamp_ms": 1508,
+      "normalized_mean_absolute_difference_vs_t0": 0.040485,
+      "normalized_mean_absolute_difference_vs_previous": 0.010825,
+      "base_region_motion_estimate": 0.032496,
+      "upper_region_motion_estimate": 0.062959
+    },
+    {
+      "file": "C:\\Users\\david\\Desktop\\Fantasy Frontier\\Saved\\FFSmokeCaptures\\V842_Final_WindProof_Exact02\\06_V842_Wind_T2007ms.png",
+      "actual_timestamp_ms": 2007,
+      "normalized_mean_absolute_difference_vs_t0": 0.043028,
+      "normalized_mean_absolute_difference_vs_previous": 0.010987,
+      "base_region_motion_estimate": 0.036751,
+      "upper_region_motion_estimate": 0.065677
+    }
+  ],
+  "mean_base_motion_nonzero_frames": 0.028973,
+  "mean_upper_motion_nonzero_frames": 0.058328,
+  "upper_to_base_motion_ratio": 2.013
+}

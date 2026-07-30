@@ -30,6 +30,8 @@
 #include "Materials/MaterialExpressionQualitySwitch.h"
 #include "Materials/MaterialExpressionTime.h"
 #include "Materials/MaterialExpressionTextureSample.h"
+#include "Materials/MaterialExpressionTwoSidedSign.h"
+#include "Materials/MaterialExpressionVertexNormalWS.h"
 #include "Materials/MaterialExpressionWorldPosition.h"
 #include "Materials/MaterialInterface.h"
 #include "Misc/Parse.h"
@@ -50,35 +52,42 @@ namespace
 {
 	const TCHAR* HighlandMapPath = TEXT("/Game/Maps/FF_Starter_Highland_Blockout");
 	const TCHAR* LandscapeMaterialPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Blockout_Grass_Green.M_FF_Blockout_Grass_Green");
-	const TCHAR* V84BladeMaterialPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_V84.M_FF_Highland_GrassBlade_V84");
-
-	const TCHAR* V841BladeMaterialPackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_V841");
 	const TCHAR* V841BladeMaterialObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_V841.M_FF_Highland_GrassBlade_V841");
-	const TCHAR* V841RyegrassMaterialPackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Ryegrass_V841");
 	const TCHAR* V841RyegrassMaterialObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Ryegrass_V841.M_FF_Highland_Ryegrass_V841");
-	const TCHAR* FillerGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Filler_V841");
-	const TCHAR* FillerGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Filler_V841.GT_FF_Highland_Grass_Filler_V841");
-	const TCHAR* MediumGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Medium_V841");
-	const TCHAR* MediumGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Medium_V841.GT_FF_Highland_Grass_Medium_V841");
-	const TCHAR* TallGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Tall_V841");
-	const TCHAR* TallGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Tall_V841.GT_FF_Highland_Grass_Tall_V841");
+	const TCHAR* V842BladeMaterialPackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_V842");
+	const TCHAR* V842BladeMaterialObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_GrassBlade_V842.M_FF_Highland_GrassBlade_V842");
+	const TCHAR* V842WildgrassMaterialPackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Wildgrass_V842");
+	const TCHAR* V842WildgrassMaterialObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Wildgrass_V842.M_FF_Highland_Wildgrass_V842");
+	const TCHAR* V842RyegrassMaterialPackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Ryegrass_V842");
+	const TCHAR* V842RyegrassMaterialObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/M_FF_Highland_Ryegrass_V842.M_FF_Highland_Ryegrass_V842");
+	const TCHAR* FillerGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Filler_V842");
+	const TCHAR* FillerGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Filler_V842.GT_FF_Highland_Grass_Filler_V842");
+	const TCHAR* MediumGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Medium_V842");
+	const TCHAR* MediumGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Medium_V842.GT_FF_Highland_Grass_Medium_V842");
+	const TCHAR* TallGrassTypePackagePath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Tall_V842");
+	const TCHAR* TallGrassTypeObjectPath = TEXT("/Game/FantasyFrontier/Blockout/Materials/GT_FF_Highland_Grass_Tall_V842.GT_FF_Highland_Grass_Tall_V842");
 
 	const TCHAR* BladeMeshPath = TEXT("/Game/Environment/Foliage/Meshes/SM_GrassBlade.SM_GrassBlade");
 	const TCHAR* RyegrassSoftMeshPath = TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_D.Ryegrass_Grass_D");
+	const TCHAR* RyegrassNarrowMeshPath = TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Grass_C.Ryegrass_Grass_C");
 	const TCHAR* RyegrassTuftMeshPath = TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Rye_Tuft.Ryegrass_Rye_Tuft");
 	const TCHAR* RyegrassStalkMeshPath = TEXT("/Game/Environment/Foliage/Grass/Ryegrass_Stalk_Green.Ryegrass_Stalk_Green");
 	const TCHAR* RyegrassMaterialPath = TEXT("/Game/Environment/Clifftop/Materials/Foliage/MI_Clifftop_Ryegrass.MI_Clifftop_Ryegrass");
 	const TCHAR* RyegrassAlbedoPath = TEXT("/Game/Environment/Clifftop/Textures/Foliage/T_Ryegrass_D.T_Ryegrass_D");
 
-	const FName LookdevActorTag(TEXT("FFHighlandV841GrassLookdev"));
-	const FName FinalCameraTag(TEXT("FFHighlandV841GrassValidation"));
+	const FName LookdevActorTag(TEXT("FFHighlandV842GrassLookdev"));
+	const FName FinalCameraTag(TEXT("FFHighlandV842GrassValidation"));
 	const FName LightingTag(TEXT("FFHighlandV841GrassLighting"));
-	const FName AppliedTag(TEXT("FFHighlandGrassNaturalizationV841Applied"));
+	const FName AppliedTag(TEXT("FFHighlandGrassArtLockV842Applied"));
 	const FName V84GrassInputName(TEXT("FF_V84_TitanGroundcover"));
-	const FName FillerInputName(TEXT("FF_V841_Grass_Filler"));
-	const FName MediumInputName(TEXT("FF_V841_Grass_Medium"));
-	const FName TallInputName(TEXT("FF_V841_Grass_Tall"));
-	const FString V841NodeToken(TEXT("FF V84.1"));
+	const FName V841FillerInputName(TEXT("FF_V841_Grass_Filler"));
+	const FName V841MediumInputName(TEXT("FF_V841_Grass_Medium"));
+	const FName V841TallInputName(TEXT("FF_V841_Grass_Tall"));
+	const FName FillerInputName(TEXT("FF_V842_Grass_Filler"));
+	const FName MediumInputName(TEXT("FF_V842_Grass_Medium"));
+	const FName TallInputName(TEXT("FF_V842_Grass_Tall"));
+	const FString V841LegacyNodeToken(TEXT("FF V84.1"));
+	const FString V841NodeToken(TEXT("FF V84.2"));
 
 	struct FProtectedState
 	{
@@ -93,6 +102,7 @@ namespace
 		int32 CandidateAInstances = 0;
 		int32 CandidateBInstances = 0;
 		int32 CandidateCInstances = 0;
+		int32 CandidateDInstances = 0;
 		int32 Cameras = 0;
 	};
 
@@ -249,19 +259,29 @@ namespace
 		return WorldPosition;
 	}
 
-	UMaterial* CreateOrLoadNaturalizedBladeMaterial()
+	UMaterial* CreateOrLoadNaturalizedBladeMaterial(const bool bWildgrass = false)
 	{
-		UMaterial* Material = LoadObject<UMaterial>(nullptr, V841BladeMaterialObjectPath);
+		const TCHAR* MaterialObjectPath = bWildgrass
+			? V842WildgrassMaterialObjectPath
+			: V842BladeMaterialObjectPath;
+		const TCHAR* MaterialPackagePath = bWildgrass
+			? V842WildgrassMaterialPackagePath
+			: V842BladeMaterialPackagePath;
+		const TCHAR* MaterialAssetName = bWildgrass
+			? TEXT("M_FF_Highland_Wildgrass_V842")
+			: TEXT("M_FF_Highland_GrassBlade_V842");
+
+		UMaterial* Material = LoadObject<UMaterial>(nullptr, MaterialObjectPath);
 		if (!Material)
 		{
-			UPackage* Package = CreatePackage(V841BladeMaterialPackagePath);
+			UPackage* Package = CreatePackage(MaterialPackagePath);
 			if (!Package)
 			{
 				return nullptr;
 			}
 			Material = NewObject<UMaterial>(
 				Package,
-				TEXT("M_FF_Highland_GrassBlade_V841"),
+				FName(MaterialAssetName),
 				RF_Public | RF_Standalone | RF_Transactional);
 			FAssetRegistryModule::AssetCreated(Material);
 		}
@@ -273,6 +293,7 @@ namespace
 		Material->BlendMode = BLEND_Opaque;
 		Material->TwoSided = true;
 		Material->SetShadingModel(MSM_TwoSidedFoliage);
+		Material->bTangentSpaceNormal = false;
 		Material->bUsedWithInstancedStaticMeshes = true;
 		Material->bUsedWithNanite = true;
 
@@ -307,6 +328,24 @@ namespace
 				UMaterialExpressionCustom::StaticClass(),
 				-230,
 				-65));
+		UMaterialExpressionVertexNormalWS* VertexNormal = Cast<UMaterialExpressionVertexNormalWS>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionVertexNormalWS::StaticClass(),
+				-600,
+				-20));
+		UMaterialExpressionTwoSidedSign* TwoSidedSign = Cast<UMaterialExpressionTwoSidedSign>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionTwoSidedSign::StaticClass(),
+				-600,
+				55));
+		UMaterialExpressionCustom* CorrectedNormal = Cast<UMaterialExpressionCustom>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionCustom::StaticClass(),
+				-230,
+				-245));
 		UMaterialExpressionCustom* WindLow = Cast<UMaterialExpressionCustom>(
 			UMaterialEditingLibrary::CreateMaterialExpression(
 				Material,
@@ -345,7 +384,8 @@ namespace
 				-145));
 
 		if (!WorldPosition || !LocalPosition || !InstanceRandom || !Time || !Color
-			|| !Subsurface || !WindLow || !WindHigh || !WindQuality
+			|| !Subsurface || !VertexNormal || !TwoSidedSign || !CorrectedNormal
+			|| !WindLow || !WindHigh || !WindQuality
 			|| !Roughness || !Specular || !AmbientOcclusion)
 		{
 			return nullptr;
@@ -355,13 +395,30 @@ namespace
 		InstanceRandom->Desc = V841NodeToken + TEXT(" per-instance phase and color");
 		Time->Desc = V841NodeToken + TEXT(" wind time");
 
-		Color->Description = V841NodeToken + TEXT(" restrained meadow blade color");
-		Color->Desc = V841NodeToken + TEXT(" naturalized blade color");
+		Color->Description = V841NodeToken + (bWildgrass
+			? TEXT(" sparse warm wildgrass color")
+			: TEXT(" restrained meadow blade color"));
+		Color->Desc = V841NodeToken + (bWildgrass
+			? TEXT(" warm wildgrass color")
+			: TEXT(" naturalized blade color"));
 		Color->OutputType = CMOT_Float3;
 		ConnectCustomInput(Color, WorldPosition, TEXT("WorldPos"));
 		ConnectCustomInput(Color, LocalPosition, TEXT("LocalPos"));
 		ConnectCustomInput(Color, InstanceRandom, TEXT("InstanceRandom"));
-		Color->Code = TEXT(R"(
+		Color->Code = bWildgrass ? TEXT(R"(
+float2 p = WorldPos.xy;
+float rootToTip = smoothstep(-7.0, 82.0, LocalPos.z);
+float broadA = 0.5 + 0.5 * sin(p.x / 47000.0 - p.y / 57000.0 + 0.63);
+float localBreakup = 0.5 + 0.5 * sin(p.x / 6800.0 + p.y / 9100.0 + InstanceRandom * 6.28318);
+float3 rootGreen = float3(0.0500, 0.1250, 0.0220);
+float3 stemGreen = float3(0.0950, 0.2050, 0.0420);
+float3 warmTip = float3(0.1450, 0.2450, 0.0600);
+float3 coolAccent = float3(0.0650, 0.1750, 0.0600);
+float3 blade = lerp(rootGreen, stemGreen, saturate(0.38 + broadA * 0.24 + localBreakup * 0.20));
+blade = lerp(blade, coolAccent, saturate((0.38 - broadA) * 0.18));
+float3 color = lerp(blade * float3(0.86, 0.90, 0.78), warmTip, saturate(rootToTip * 0.34));
+return color * lerp(0.94, 1.06, InstanceRandom);
+)") : TEXT(R"(
 float2 p = WorldPos.xy;
 float rootToTip = smoothstep(-7.0, 82.0, LocalPos.z);
 float broadA = 0.5 + 0.5 * sin(p.x / 44000.0 + p.y / 62000.0 + 0.35 * sin(p.y / 17000.0));
@@ -369,25 +426,43 @@ float broadB = 0.5 + 0.5 * sin(-p.x / 33000.0 + p.y / 51000.0 + 1.73);
 float localBreakup = 0.5 + 0.5 * sin(p.x / 7200.0 - p.y / 9600.0 + InstanceRandom * 6.28318);
 float ecology = saturate(broadA * 0.46 + broadB * 0.31 + localBreakup * 0.23);
 
-float3 deepGreen = float3(0.0180, 0.0550, 0.0080);
-float3 softGreen = float3(0.0380, 0.1150, 0.0210);
-float3 warmGreen = float3(0.0600, 0.1450, 0.0280);
-float3 coolGreen = float3(0.0280, 0.0950, 0.0320);
+float3 deepGreen = float3(0.0450, 0.1150, 0.0220);
+float3 softGreen = float3(0.0750, 0.2050, 0.0480);
+float3 warmGreen = float3(0.1050, 0.2350, 0.0600);
+float3 coolGreen = float3(0.0550, 0.1750, 0.0670);
 float3 blade = lerp(deepGreen, softGreen, saturate(0.28 + ecology * 0.68));
 blade = lerp(blade, warmGreen, saturate((broadB - 0.58) * 0.48));
 blade = lerp(blade, coolGreen, saturate((broadA - 0.62) * 0.32));
-float3 root = blade * float3(0.72, 0.78, 0.65);
+float3 root = blade * float3(0.80, 0.86, 0.76);
 float3 tip = lerp(blade, warmGreen, saturate(0.025 + localBreakup * 0.055));
 float3 color = lerp(root, tip, saturate(rootToTip * 0.68));
-return color * lerp(0.90, 1.035, InstanceRandom);
+return color * lerp(0.94, 1.06, InstanceRandom);
 )");
 
-		Subsurface->Description = V841NodeToken + TEXT(" low-energy foliage transmission");
-		Subsurface->Desc = V841NodeToken + TEXT(" restrained subsurface");
+		Subsurface->Description = V841NodeToken + (bWildgrass
+			? TEXT(" warm wildgrass foliage transmission")
+			: TEXT(" low-energy foliage transmission"));
+		Subsurface->Desc = V841NodeToken + (bWildgrass
+			? TEXT(" warm wildgrass subsurface")
+			: TEXT(" restrained subsurface"));
 		Subsurface->OutputType = CMOT_Float3;
 		ConnectCustomInput(Subsurface, Color, TEXT("BladeColor"));
-		Subsurface->Code = TEXT(
-			"return saturate(BladeColor * 0.95 + float3(0.012, 0.040, 0.008));");
+		Subsurface->Code = bWildgrass
+			? TEXT("return saturate(BladeColor * 1.04 + float3(0.050, 0.115, 0.026));")
+			: TEXT("return saturate(BladeColor * 1.05 + float3(0.035, 0.110, 0.025));");
+
+		VertexNormal->Desc = V841NodeToken + TEXT(" source vertex normal");
+		TwoSidedSign->Desc = V841NodeToken + TEXT(" front/back orientation");
+		CorrectedNormal->Description = V841NodeToken + TEXT(" coherent two-sided foliage normal");
+		CorrectedNormal->Desc = V841NodeToken + TEXT(" two-sided world normal");
+		CorrectedNormal->OutputType = CMOT_Float3;
+		ConnectCustomInput(CorrectedNormal, VertexNormal, TEXT("VertexNormal"));
+		ConnectCustomInput(CorrectedNormal, TwoSidedSign, TEXT("FaceSign"));
+		CorrectedNormal->Code = TEXT(R"(
+float3 coherent = normalize(VertexNormal * FaceSign);
+float3 softened = normalize(lerp(coherent, float3(0.0, 0.0, 1.0), 0.33));
+return softened;
+)");
 
 		auto ConfigureWindInputs = [&](UMaterialExpressionCustom* Wind)
 		{
@@ -403,8 +478,8 @@ return color * lerp(0.90, 1.035, InstanceRandom);
 		ConfigureWindInputs(WindLow);
 		WindLow->Code = TEXT(R"(
 float h = saturate((LocalPos.z + 8.0) / 90.0);
-float rootMask = smoothstep(0.08, 0.38, h);
-float upper = smoothstep(0.26, 1.0, h);
+ float rootMask = smoothstep(0.30, 0.50, h);
+ float upper = smoothstep(0.38, 1.0, h);
 rootMask *= rootMask;
 upper *= upper;
 float phase = InstanceRandom * 6.28318;
@@ -413,7 +488,7 @@ float2 leanDir = float2(cos(angle), sin(angle));
 float2 staticCurve = leanDir * lerp(2.5, 7.0, InstanceRandom) * upper;
 float sway = sin(Time * 0.62 + phase + dot(WorldPos.xy, float2(0.0011, 0.0007)));
 float2 windDir = normalize(float2(0.82, 0.36));
-float2 moving = windDir * sway * lerp(1.1, 2.8, InstanceRandom) * rootMask;
+ float2 moving = windDir * sway * lerp(1.3, 3.2, InstanceRandom) * rootMask;
 return float3(staticCurve + moving, -0.18 * length(staticCurve) * upper);
 )");
 
@@ -422,9 +497,9 @@ return float3(staticCurve + moving, -0.18 * length(staticCurve) * upper);
 		ConfigureWindInputs(WindHigh);
 		WindHigh->Code = TEXT(R"(
 float h = saturate((LocalPos.z + 8.0) / 90.0);
-float rootMask = smoothstep(0.07, 0.34, h);
-float upper = smoothstep(0.24, 1.0, h);
-float tip = smoothstep(0.58, 1.0, h);
+ float rootMask = smoothstep(0.28, 0.48, h);
+ float upper = smoothstep(0.36, 1.0, h);
+ float tip = smoothstep(0.68, 1.0, h);
 rootMask *= rootMask;
 upper *= upper;
 tip *= tip;
@@ -438,9 +513,9 @@ float lowFrequency = sin(Time * 0.66 + phase + dot(WorldPos.xy, float2(0.00105, 
 float gustField = 0.72 + 0.28 * sin(Time * 0.23 + dot(WorldPos.xy, float2(-0.00022, 0.00031)) + phase * 0.31);
 float flutter = sin(Time * 2.15 + phase * 1.73 + dot(WorldPos.xy, float2(0.0052, -0.0036)));
 float cross = sin(Time * 0.93 + phase * 0.61 + dot(WorldPos.xy, float2(-0.0016, 0.0011)));
-float2 moving = windDir * lowFrequency * gustField * lerp(1.6, 4.2, InstanceRandom) * rootMask;
-moving += float2(-windDir.y, windDir.x) * cross * 0.85 * upper;
-moving += windDir * flutter * 0.72 * tip;
+ float2 moving = windDir * lowFrequency * gustField * lerp(2.2, 5.4, InstanceRandom) * rootMask;
+ moving += float2(-windDir.y, windDir.x) * cross * 1.05 * upper;
+ moving += windDir * flutter * 1.15 * tip;
 return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 )");
 
@@ -460,6 +535,7 @@ return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 
 		UMaterialEditingLibrary::ConnectMaterialProperty(Color, TEXT(""), MP_BaseColor);
 		UMaterialEditingLibrary::ConnectMaterialProperty(Subsurface, TEXT(""), MP_SubsurfaceColor);
+		UMaterialEditingLibrary::ConnectMaterialProperty(CorrectedNormal, TEXT(""), MP_Normal);
 		UMaterialEditingLibrary::ConnectMaterialProperty(WindQuality, TEXT(""), MP_WorldPositionOffset);
 		UMaterialEditingLibrary::ConnectMaterialProperty(Roughness, TEXT(""), MP_Roughness);
 		UMaterialEditingLibrary::ConnectMaterialProperty(Specular, TEXT(""), MP_Specular);
@@ -476,17 +552,17 @@ return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 			return nullptr;
 		}
 
-		UMaterial* Material = LoadObject<UMaterial>(nullptr, V841RyegrassMaterialObjectPath);
+		UMaterial* Material = LoadObject<UMaterial>(nullptr, V842RyegrassMaterialObjectPath);
 		if (!Material)
 		{
-			UPackage* Package = CreatePackage(V841RyegrassMaterialPackagePath);
+			UPackage* Package = CreatePackage(V842RyegrassMaterialPackagePath);
 			if (!Package)
 			{
 				return nullptr;
 			}
 			Material = NewObject<UMaterial>(
 				Package,
-				TEXT("M_FF_Highland_Ryegrass_V841"),
+				TEXT("M_FF_Highland_Ryegrass_V842"),
 				RF_Public | RF_Standalone | RF_Transactional);
 			FAssetRegistryModule::AssetCreated(Material);
 		}
@@ -499,6 +575,7 @@ return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 		Material->OpacityMaskClipValue = 0.32f;
 		Material->TwoSided = true;
 		Material->SetShadingModel(MSM_TwoSidedFoliage);
+		Material->bTangentSpaceNormal = false;
 		Material->bUsedWithInstancedStaticMeshes = true;
 		Material->bUsedWithNanite = true;
 
@@ -539,6 +616,24 @@ return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 				UMaterialExpressionCustom::StaticClass(),
 				-290,
 				-120));
+		UMaterialExpressionVertexNormalWS* VertexNormal = Cast<UMaterialExpressionVertexNormalWS>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionVertexNormalWS::StaticClass(),
+				-700,
+				-70));
+		UMaterialExpressionTwoSidedSign* TwoSidedSign = Cast<UMaterialExpressionTwoSidedSign>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionTwoSidedSign::StaticClass(),
+				-700,
+				10));
+		UMaterialExpressionCustom* CorrectedNormal = Cast<UMaterialExpressionCustom>(
+			UMaterialEditingLibrary::CreateMaterialExpression(
+				Material,
+				UMaterialExpressionCustom::StaticClass(),
+				-290,
+				-300));
 		UMaterialExpressionCustom* WindLow = Cast<UMaterialExpressionCustom>(
 			UMaterialEditingLibrary::CreateMaterialExpression(
 				Material,
@@ -577,7 +672,8 @@ return float3(staticCurve + moving, -0.20 * length(staticCurve) * upper);
 				-210));
 
 		if (!WorldPosition || !LocalPosition || !InstanceRandom || !Time || !TextureSample
-			|| !Color || !Subsurface || !WindLow || !WindHigh || !WindQuality
+			|| !Color || !Subsurface || !VertexNormal || !TwoSidedSign || !CorrectedNormal
+			|| !WindLow || !WindHigh || !WindQuality
 			|| !Roughness || !Specular || !AmbientOcclusion)
 		{
 			return nullptr;
@@ -602,15 +698,15 @@ float luminance = dot(saturate(TexColor.rgb), float3(0.299, 0.587, 0.114));
 float h = saturate((LocalPos.z + 4.0) / 88.0);
 float broad = 0.5 + 0.5 * sin(WorldPos.x / 31000.0 - WorldPos.y / 47000.0 + 1.21);
 float localBreakup = 0.5 + 0.5 * sin(WorldPos.x / 6100.0 + WorldPos.y / 8400.0 + InstanceRandom * 6.28318);
-float3 deepGreen = float3(0.0160, 0.0480, 0.0070);
-float3 meadowGreen = float3(0.0350, 0.1050, 0.0190);
-float3 warmGreen = float3(0.0600, 0.1450, 0.0260);
-float3 coolGreen = float3(0.0250, 0.0900, 0.0300);
+float3 deepGreen = float3(0.0450, 0.1200, 0.0220);
+float3 meadowGreen = float3(0.0850, 0.2150, 0.0500);
+float3 warmGreen = float3(0.1200, 0.2550, 0.0650);
+float3 coolGreen = float3(0.0600, 0.1850, 0.0740);
 float3 blade = lerp(deepGreen, meadowGreen, saturate(0.24 + luminance * 0.56 + localBreakup * 0.14));
 blade = lerp(blade, warmGreen, saturate((broad - 0.58) * 0.24 + h * 0.10));
 blade = lerp(blade, coolGreen, saturate((0.42 - broad) * 0.16));
 blade *= lerp(0.86, 1.04, InstanceRandom);
-return lerp(blade * 0.82, blade, smoothstep(0.02, 0.72, h));
+return lerp(blade * 0.90, blade, smoothstep(0.02, 0.72, h));
 )");
 
 		Subsurface->Description = V841NodeToken + TEXT(" controlled ryegrass transmission");
@@ -618,7 +714,20 @@ return lerp(blade * 0.82, blade, smoothstep(0.02, 0.72, h));
 		Subsurface->OutputType = CMOT_Float3;
 		ConnectCustomInput(Subsurface, Color, TEXT("BladeColor"));
 		Subsurface->Code = TEXT(
-			"return saturate(BladeColor + float3(0.014, 0.045, 0.009));");
+			"return saturate(BladeColor + float3(0.040, 0.115, 0.025));");
+
+		VertexNormal->Desc = V841NodeToken + TEXT(" ryegrass source vertex normal");
+		TwoSidedSign->Desc = V841NodeToken + TEXT(" ryegrass front/back orientation");
+		CorrectedNormal->Description = V841NodeToken + TEXT(" coherent ryegrass two-sided normal");
+		CorrectedNormal->Desc = V841NodeToken + TEXT(" ryegrass two-sided world normal");
+		CorrectedNormal->OutputType = CMOT_Float3;
+		ConnectCustomInput(CorrectedNormal, VertexNormal, TEXT("VertexNormal"));
+		ConnectCustomInput(CorrectedNormal, TwoSidedSign, TEXT("FaceSign"));
+		CorrectedNormal->Code = TEXT(R"(
+float3 coherent = normalize(VertexNormal * FaceSign);
+float3 softened = normalize(lerp(coherent, float3(0.0, 0.0, 1.0), 0.30));
+return softened;
+)");
 
 		auto ConfigureWindInputs = [&](UMaterialExpressionCustom* Wind)
 		{
@@ -634,15 +743,15 @@ return lerp(blade * 0.82, blade, smoothstep(0.02, 0.72, h));
 		ConfigureWindInputs(WindLow);
 		WindLow->Code = TEXT(R"(
 float h = saturate((LocalPos.z + 3.0) / 78.0);
-float anchored = smoothstep(0.09, 0.42, h);
-float upper = smoothstep(0.32, 1.0, h);
+float anchored = smoothstep(0.32, 0.52, h);
+float upper = smoothstep(0.40, 1.0, h);
 anchored *= anchored;
 upper *= upper;
 float phase = InstanceRandom * 6.28318;
 float2 restDir = float2(cos(phase + 0.45), sin(phase + 0.45));
 float2 curve = restDir * lerp(1.8, 5.2, InstanceRandom) * upper;
 float sway = sin(Time * 0.54 + phase + dot(WorldPos.xy, float2(0.00085, 0.00058)));
-float2 moving = normalize(float2(0.82, 0.36)) * sway * lerp(0.9, 2.4, InstanceRandom) * anchored;
+float2 moving = normalize(float2(0.82, 0.36)) * sway * lerp(1.2, 3.0, InstanceRandom) * anchored;
 return float3(curve + moving, -0.10 * length(curve) * upper);
 )");
 
@@ -651,9 +760,9 @@ return float3(curve + moving, -0.10 * length(curve) * upper);
 		ConfigureWindInputs(WindHigh);
 		WindHigh->Code = TEXT(R"(
 float h = saturate((LocalPos.z + 3.0) / 78.0);
-float anchored = smoothstep(0.07, 0.36, h);
-float upper = smoothstep(0.26, 1.0, h);
-float tip = smoothstep(0.62, 1.0, h);
+float anchored = smoothstep(0.30, 0.50, h);
+float upper = smoothstep(0.38, 1.0, h);
+float tip = smoothstep(0.68, 1.0, h);
 anchored *= anchored;
 upper *= upper;
 tip *= tip;
@@ -665,9 +774,9 @@ float sway = sin(Time * 0.58 + phase + dot(WorldPos.xy, float2(0.00090, 0.00061)
 float gust = 0.74 + 0.26 * sin(Time * 0.21 + dot(WorldPos.xy, float2(-0.00020, 0.00028)) + phase * 0.27);
 float flutter = sin(Time * 1.92 + phase * 1.61 + dot(WorldPos.xy, float2(0.0042, -0.0030)));
 float cross = sin(Time * 0.81 + phase * 0.57);
-float2 moving = windDir * sway * gust * lerp(1.4, 3.8, InstanceRandom) * anchored;
-moving += float2(-windDir.y, windDir.x) * cross * 0.72 * upper;
-moving += windDir * flutter * 0.58 * tip;
+float2 moving = windDir * sway * gust * lerp(2.0, 5.0, InstanceRandom) * anchored;
+moving += float2(-windDir.y, windDir.x) * cross * 0.95 * upper;
+moving += windDir * flutter * 1.05 * tip;
 return float3(curve + moving, -0.12 * length(curve) * upper);
 )");
 
@@ -687,6 +796,7 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 
 		UMaterialEditingLibrary::ConnectMaterialProperty(Color, TEXT(""), MP_BaseColor);
 		UMaterialEditingLibrary::ConnectMaterialProperty(Subsurface, TEXT(""), MP_SubsurfaceColor);
+		UMaterialEditingLibrary::ConnectMaterialProperty(CorrectedNormal, TEXT(""), MP_Normal);
 		UMaterialEditingLibrary::ConnectMaterialProperty(TextureSample, TEXT("A"), MP_OpacityMask);
 		UMaterialEditingLibrary::ConnectMaterialProperty(WindQuality, TEXT(""), MP_WorldPositionOffset);
 		UMaterialEditingLibrary::ConnectMaterialProperty(Roughness, TEXT(""), MP_Roughness);
@@ -1059,11 +1169,11 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 			}
 
 			const FString Label = FString::Printf(
-				TEXT("V841_Candidate%s_%s"),
+				TEXT("V842_Candidate%s_%s"),
 				*Candidate,
 				Spec.Suffix);
 			const FName Tag(*FString::Printf(
-				TEXT("FFSmokeHighlandV841Candidate%s%sCamera"),
+				TEXT("FFSmokeHighlandV842Candidate%s%sCamera"),
 				*Candidate,
 				Spec.Suffix));
 			const FVector Location = CameraGround.ImpactPoint + FVector(0.0f, 0.0f, Spec.Height);
@@ -1080,20 +1190,76 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 		return Added;
 	}
 
+	int32 AddLightingProofCameras(UWorld* World, const FVector2D& Center)
+	{
+		FHitResult TargetHit;
+		if (!TraceLandscapeGround(World, Center, TargetHit))
+		{
+			return 0;
+		}
+
+		FVector2D LightFacing(1.0f, 0.0f);
+		for (TActorIterator<ADirectionalLight> It(World); It; ++It)
+		{
+			const FVector Incoming = -It->GetActorForwardVector();
+			const FVector2D Horizontal(Incoming.X, Incoming.Y);
+			if (!Horizontal.IsNearlyZero())
+			{
+				LightFacing = Horizontal.GetSafeNormal();
+			}
+			break;
+		}
+		const FVector2D SideFacing(-LightFacing.Y, LightFacing.X);
+
+		struct FLightingCameraSpec
+		{
+			const TCHAR* Label;
+			const TCHAR* Tag;
+			FVector2D Direction;
+		};
+		const FLightingCameraSpec Specs[] = {
+			{ TEXT("V842_Lighting_Front"), TEXT("FFSmokeHighlandV842LightingFrontCamera"), LightFacing },
+			{ TEXT("V842_Lighting_Back"), TEXT("FFSmokeHighlandV842LightingBackCamera"), -LightFacing },
+			{ TEXT("V842_Lighting_Side"), TEXT("FFSmokeHighlandV842LightingSideCamera"), SideFacing }
+		};
+
+		int32 Added = 0;
+		for (const FLightingCameraSpec& Spec : Specs)
+		{
+			const FVector2D CameraXY = Center + Spec.Direction * 610.0f;
+			FHitResult CameraHit;
+			if (!TraceLandscapeGround(World, CameraXY, CameraHit))
+			{
+				continue;
+			}
+			Added += SpawnValidationCamera(
+				World,
+				Spec.Label,
+				FName(Spec.Tag),
+				LookdevActorTag,
+				CameraHit.ImpactPoint + FVector(0.0f, 0.0f, 150.0f),
+				TargetHit.ImpactPoint + FVector(0.0f, 0.0f, 58.0f),
+				42.0f) ? 1 : 0;
+		}
+		return Added;
+	}
+
 	bool CreateLookdev(
 		UWorld* World,
 		UMaterial* NaturalizedBladeMaterial,
 		UMaterial* NaturalizedRyegrassMaterial,
 		FLookdevStats& OutStats)
 	{
-		UMaterialInterface* V84BladeMaterial = LoadObject<UMaterialInterface>(nullptr, V84BladeMaterialPath);
+		UMaterialInterface* V841BladeMaterial = LoadObject<UMaterialInterface>(nullptr, V841BladeMaterialObjectPath);
+		UMaterialInterface* V841RyegrassMaterial = LoadObject<UMaterialInterface>(nullptr, V841RyegrassMaterialObjectPath);
 		UStaticMesh* BladeMesh = LoadObject<UStaticMesh>(nullptr, BladeMeshPath);
 		UStaticMesh* SoftGrassMesh = LoadObject<UStaticMesh>(nullptr, RyegrassSoftMeshPath);
+		UStaticMesh* NarrowGrassMesh = LoadObject<UStaticMesh>(nullptr, RyegrassNarrowMeshPath);
 		UStaticMesh* TuftMesh = LoadObject<UStaticMesh>(nullptr, RyegrassTuftMeshPath);
 		UStaticMesh* StalkMesh = LoadObject<UStaticMesh>(nullptr, RyegrassStalkMeshPath);
 		if (!World || !NaturalizedBladeMaterial || !NaturalizedRyegrassMaterial
-			|| !V84BladeMaterial
-			|| !BladeMesh || !SoftGrassMesh || !TuftMesh || !StalkMesh)
+			|| !V841BladeMaterial || !V841RyegrassMaterial
+			|| !BladeMesh || !SoftGrassMesh || !NarrowGrassMesh || !TuftMesh || !StalkMesh)
 		{
 			return false;
 		}
@@ -1112,126 +1278,153 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 		}
 
 		const FVector2D BaseCenter(MeadowHit.ImpactPoint.X, MeadowHit.ImpactPoint.Y);
-		const FVector2D CandidateACenter = BaseCenter + FVector2D(-3300.0f, 0.0f);
-		const FVector2D CandidateBCenter = BaseCenter;
-		const FVector2D CandidateCCenter = BaseCenter + FVector2D(3300.0f, 0.0f);
+		const FVector2D CandidateACenter = BaseCenter + FVector2D(-4950.0f, 0.0f);
+		const FVector2D CandidateBCenter = BaseCenter + FVector2D(-1650.0f, 0.0f);
+		const FVector2D CandidateCCenter = BaseCenter + FVector2D(1650.0f, 0.0f);
+		const FVector2D CandidateDCenter = BaseCenter + FVector2D(4950.0f, 0.0f);
 
 		AActor* CandidateA = SpawnContainerActor(
 			World,
-			TEXT("V841_CandidateA_TitanBaseline"),
-			TEXT("FFHighlandV841CandidateA"));
+			TEXT("V842_CandidateA_V841Baseline"),
+			TEXT("FFHighlandV842CandidateA"));
 		AActor* CandidateB = SpawnContainerActor(
 			World,
-			TEXT("V841_CandidateB_SoftCurved"),
-			TEXT("FFHighlandV841CandidateB"));
+			TEXT("V842_CandidateB_BackfaceNarrowTuft"),
+			TEXT("FFHighlandV842CandidateB"));
 		AActor* CandidateC = SpawnContainerActor(
 			World,
-			TEXT("V841_CandidateC_MixedWildMeadow"),
-			TEXT("FFHighlandV841CandidateC"));
-		if (!CandidateA || !CandidateB || !CandidateC)
+			TEXT("V842_CandidateC_NarrowGrassC"),
+			TEXT("FFHighlandV842CandidateC"));
+		AActor* CandidateD = SpawnContainerActor(
+			World,
+			TEXT("V842_CandidateD_CurvedGrassD"),
+			TEXT("FFHighlandV842CandidateD"));
+		if (!CandidateA || !CandidateB || !CandidateC || !CandidateD)
 		{
 			return false;
 		}
 
-		OutStats.CandidateAInstances += AddScatterComponent(
-			World,
+		auto AddCandidateLayers = [&](
+			AActor* Candidate,
+			const FVector2D& Center,
+			UMaterialInterface* BladeMaterial,
+			UMaterialInterface* RyeMaterial,
+			UStaticMesh* MediumMesh,
+			const FVector2D& MediumXY,
+			const FVector2D& MediumZ,
+			const int32 MediumCount,
+			const int32 Seed,
+			int32& OutInstances)
+		{
+			OutInstances += AddScatterComponent(
+				World,
+				Candidate,
+				TEXT("ShortFiller"),
+				BladeMesh,
+				BladeMaterial,
+				Center,
+				900.0f,
+				1100,
+				FVector2D(0.68f, 1.02f),
+				FVector2D(0.22f, 0.44f),
+				Seed,
+				false);
+			OutInstances += AddScatterComponent(
+				World,
+				Candidate,
+				TEXT("MediumMeadow"),
+				MediumMesh,
+				RyeMaterial,
+				Center,
+				900.0f,
+				MediumCount,
+				MediumXY,
+				MediumZ,
+				Seed + 1,
+				true);
+			OutInstances += AddScatterComponent(
+				World,
+				Candidate,
+				TEXT("TallAccent"),
+				StalkMesh,
+				RyeMaterial,
+				Center,
+				900.0f,
+				12,
+				FVector2D(0.22f, 0.34f),
+				FVector2D(0.50f, 0.76f),
+				Seed + 2,
+				true);
+		};
+
+		AddCandidateLayers(
 			CandidateA,
-			TEXT("CandidateA_Blade"),
-			BladeMesh,
-			V84BladeMaterial,
 			CandidateACenter,
-			1050.0f,
-			1650,
-			FVector2D(0.92f, 1.42f),
-			FVector2D(0.30f, 0.68f),
-			84101,
-			false);
-
-		OutStats.CandidateBInstances += AddScatterComponent(
-			World,
-			CandidateB,
-			TEXT("CandidateB_CurvedRyegrass"),
-			SoftGrassMesh,
-			NaturalizedRyegrassMaterial,
-			CandidateBCenter,
-			1050.0f,
-			750,
-			FVector2D(0.28f, 0.48f),
-			FVector2D(0.35f, 0.62f),
-			84102,
-			true);
-		OutStats.CandidateBInstances += AddScatterComponent(
-			World,
-			CandidateB,
-			TEXT("CandidateB_ShortFiller"),
-			BladeMesh,
-			NaturalizedBladeMaterial,
-			CandidateBCenter,
-			1050.0f,
-			650,
-			FVector2D(0.62f, 0.96f),
-			FVector2D(0.18f, 0.36f),
-			84103,
-			false);
-
-		OutStats.CandidateCInstances += AddScatterComponent(
-			World,
-			CandidateC,
-			TEXT("CandidateC_Filler"),
-			BladeMesh,
-			NaturalizedBladeMaterial,
-			CandidateCCenter,
-			1050.0f,
-			1400,
-			FVector2D(0.68f, 1.05f),
-			FVector2D(0.22f, 0.46f),
-			84104,
-			false);
-		OutStats.CandidateCInstances += AddScatterComponent(
-			World,
-			CandidateC,
-			TEXT("CandidateC_MediumRyeTuft"),
+			V841BladeMaterial,
+			V841RyegrassMaterial,
 			TuftMesh,
-			NaturalizedRyegrassMaterial,
-			CandidateCCenter,
-			1050.0f,
-			260,
-			FVector2D(0.42f, 0.72f),
+			FVector2D(0.42f, 0.70f),
 			FVector2D(0.52f, 0.85f),
-			84105,
-			true);
-		OutStats.CandidateCInstances += AddScatterComponent(
-			World,
-			CandidateC,
-			TEXT("CandidateC_Stalk"),
-			StalkMesh,
+			220,
+			84201,
+			OutStats.CandidateAInstances);
+		AddCandidateLayers(
+			CandidateB,
+			CandidateBCenter,
+			NaturalizedBladeMaterial,
 			NaturalizedRyegrassMaterial,
+			TuftMesh,
+			FVector2D(0.22f, 0.34f),
+			FVector2D(0.62f, 0.94f),
+			220,
+			84211,
+			OutStats.CandidateBInstances);
+		AddCandidateLayers(
+			CandidateC,
 			CandidateCCenter,
-			1050.0f,
-			14,
-			FVector2D(0.22f, 0.36f),
-			FVector2D(0.40f, 0.65f),
-			84106,
-			true);
+			NaturalizedBladeMaterial,
+			NaturalizedRyegrassMaterial,
+			NarrowGrassMesh,
+			FVector2D(0.24f, 0.38f),
+			FVector2D(0.26f, 0.44f),
+			150,
+			84221,
+			OutStats.CandidateCInstances);
+		AddCandidateLayers(
+			CandidateD,
+			CandidateDCenter,
+			NaturalizedBladeMaterial,
+			NaturalizedRyegrassMaterial,
+			SoftGrassMesh,
+			FVector2D(0.24f, 0.38f),
+			FVector2D(0.28f, 0.46f),
+			165,
+			84231,
+			OutStats.CandidateDInstances);
 
 		OutStats.Cameras += AddCandidateCameras(World, TEXT("A"), CandidateACenter);
 		OutStats.Cameras += AddCandidateCameras(World, TEXT("B"), CandidateBCenter);
 		OutStats.Cameras += AddCandidateCameras(World, TEXT("C"), CandidateCCenter);
+		OutStats.Cameras += AddCandidateCameras(World, TEXT("D"), CandidateDCenter);
+		OutStats.Cameras += AddLightingProofCameras(World, CandidateBCenter);
 
 		UE_LOG(
 			LogTemp,
 			Display,
-			TEXT("FFV841Grass: lookdev centers A=(%.1f,%.1f) B=(%.1f,%.1f) C=(%.1f,%.1f)"),
+			TEXT("FFV842Grass: lookdev centers A=(%.1f,%.1f) B=(%.1f,%.1f) C=(%.1f,%.1f) D=(%.1f,%.1f)"),
 			CandidateACenter.X,
 			CandidateACenter.Y,
 			CandidateBCenter.X,
 			CandidateBCenter.Y,
 			CandidateCCenter.X,
-			CandidateCCenter.Y);
+			CandidateCCenter.Y,
+			CandidateDCenter.X,
+			CandidateDCenter.Y);
 		return OutStats.CandidateAInstances > 0
 			&& OutStats.CandidateBInstances > 0
 			&& OutStats.CandidateCInstances > 0
-			&& OutStats.Cameras == 12;
+			&& OutStats.CandidateDInstances > 0
+			&& OutStats.Cameras == 19;
 	}
 
 	bool IsV841Expression(const UMaterialExpression* Expression)
@@ -1240,13 +1433,15 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 		{
 			return false;
 		}
-		if (Expression->Desc.Contains(V841NodeToken, ESearchCase::IgnoreCase))
+		if (Expression->Desc.Contains(V841NodeToken, ESearchCase::IgnoreCase)
+			|| Expression->Desc.Contains(V841LegacyNodeToken, ESearchCase::IgnoreCase))
 		{
 			return true;
 		}
 		if (const UMaterialExpressionCustom* Custom = Cast<UMaterialExpressionCustom>(Expression))
 		{
-			return Custom->Description.Contains(V841NodeToken, ESearchCase::IgnoreCase);
+			return Custom->Description.Contains(V841NodeToken, ESearchCase::IgnoreCase)
+				|| Custom->Description.Contains(V841LegacyNodeToken, ESearchCase::IgnoreCase);
 		}
 		return false;
 	}
@@ -1312,6 +1507,9 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 		{
 			const FName InputName = GrassOutput->GrassTypes[InputIndex].Name;
 			if (InputName == V84GrassInputName
+				|| InputName == V841FillerInputName
+				|| InputName == V841MediumInputName
+				|| InputName == V841TallInputName
 				|| InputName == FillerInputName
 				|| InputName == MediumInputName
 				|| InputName == TallInputName)
@@ -1372,85 +1570,165 @@ return float3(curve + moving, -0.12 * length(curve) * upper);
 		ConfigureMask(FillerMask, TEXT("short filler patch mask"));
 		FillerMask->Code = TEXT(R"(
 float2 p = WorldPos.xy;
-float2 q0 = p / 52000.0;
+float2 qw0 = p / 79000.0;
+float2 iw0 = floor(qw0);
+float2 fw0 = frac(qw0);
+fw0 = fw0 * fw0 * (3.0 - 2.0 * fw0);
+float wa = frac(sin(dot(iw0, float2(41.7, 289.3))) * 43758.5453);
+float wb = frac(sin(dot(iw0 + float2(1.0, 0.0), float2(41.7, 289.3))) * 43758.5453);
+float wc = frac(sin(dot(iw0 + float2(0.0, 1.0), float2(41.7, 289.3))) * 43758.5453);
+float wd = frac(sin(dot(iw0 + float2(1.0, 1.0), float2(41.7, 289.3))) * 43758.5453);
+float warpX = lerp(lerp(wa, wb, fw0.x), lerp(wc, wd, fw0.x), fw0.y);
+
+float2 qw1 = (p + float2(19300.0, -11700.0)) / 67000.0;
+float2 iw1 = floor(qw1);
+float2 fw1 = frac(qw1);
+fw1 = fw1 * fw1 * (3.0 - 2.0 * fw1);
+float we = frac(sin(dot(iw1, float2(157.2, 93.7))) * 43758.5453);
+float wf = frac(sin(dot(iw1 + float2(1.0, 0.0), float2(157.2, 93.7))) * 43758.5453);
+float wg = frac(sin(dot(iw1 + float2(0.0, 1.0), float2(157.2, 93.7))) * 43758.5453);
+float wh = frac(sin(dot(iw1 + float2(1.0, 1.0), float2(157.2, 93.7))) * 43758.5453);
+float warpY = lerp(lerp(we, wf, fw1.x), lerp(wg, wh, fw1.x), fw1.y);
+p += (float2(warpX, warpY) - 0.5) * 9200.0;
+
+float2 q0 = p / 58000.0;
 float2 i0 = floor(q0);
 float2 f0 = frac(q0);
 f0 = f0 * f0 * (3.0 - 2.0 * f0);
-float a0 = frac(sin(dot(i0, float2(127.1, 311.7))) * 43758.5453);
-float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(127.1, 311.7))) * 43758.5453);
-float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
-float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
+float a0 = frac(sin(dot(i0, float2(127.1, 311.7)) + 0.41) * 43758.5453);
+float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(127.1, 311.7)) + 0.41) * 43758.5453);
+float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(127.1, 311.7)) + 0.41) * 43758.5453);
+float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(127.1, 311.7)) + 0.41) * 43758.5453);
 float broad = lerp(lerp(a0, b0, f0.x), lerp(c0, d0, f0.x), f0.y);
 
 float2 rotated = float2(p.x * 0.73 + p.y * 0.41, -p.x * 0.38 + p.y * 0.91);
-float2 q1 = rotated / 17000.0;
+float2 q1 = rotated / 18500.0;
 float2 i1 = floor(q1);
 float2 f1 = frac(q1);
 f1 = f1 * f1 * (3.0 - 2.0 * f1);
-float a1 = frac(sin(dot(i1, float2(269.5, 183.3))) * 43758.5453);
-float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(269.5, 183.3))) * 43758.5453);
-float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
-float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
+float a1 = frac(sin(dot(i1, float2(269.5, 183.3)) + 2.17) * 43758.5453);
+float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(269.5, 183.3)) + 2.17) * 43758.5453);
+float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(269.5, 183.3)) + 2.17) * 43758.5453);
+float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(269.5, 183.3)) + 2.17) * 43758.5453);
 float middle = lerp(lerp(a1, b1, f1.x), lerp(c1, d1, f1.x), f1.y);
 
-float breakup = saturate(broad * 0.66 + middle * 0.34);
-return saturate(BaseDensity * lerp(0.64, 1.0, smoothstep(0.12, 0.88, breakup)));
+float2 q2 = (p + float2(-8300.0, 12100.0)) / 6100.0;
+float2 i2 = floor(q2);
+float2 f2 = frac(q2);
+f2 = f2 * f2 * (3.0 - 2.0 * f2);
+float a2 = frac(sin(dot(i2, float2(91.4, 267.1)) + 4.07) * 43758.5453);
+float b2 = frac(sin(dot(i2 + float2(1.0, 0.0), float2(91.4, 267.1)) + 4.07) * 43758.5453);
+float c2 = frac(sin(dot(i2 + float2(0.0, 1.0), float2(91.4, 267.1)) + 4.07) * 43758.5453);
+float d2 = frac(sin(dot(i2 + float2(1.0, 1.0), float2(91.4, 267.1)) + 4.07) * 43758.5453);
+float micro = lerp(lerp(a2, b2, f2.x), lerp(c2, d2, f2.x), f2.y);
+
+float breakup = saturate(broad * 0.42 + middle * 0.36 + micro * 0.22);
+float foundation = smoothstep(0.015, 0.78, BaseDensity);
+return saturate(foundation * lerp(0.92, 1.0, smoothstep(0.05, 0.95, breakup)));
 )");
 
 		ConfigureMask(MediumMask, TEXT("curved medium meadow patch mask"));
 		MediumMask->Code = TEXT(R"(
 float2 p = WorldPos.xy;
-float2 q0 = p / 25500.0;
+float2 qw = (p + float2(12700.0, 5400.0)) / 71000.0;
+float2 iw = floor(qw);
+float2 fw = frac(qw);
+fw = fw * fw * (3.0 - 2.0 * fw);
+float wa = frac(sin(dot(iw, float2(73.2, 219.6)) + 1.31) * 43758.5453);
+float wb = frac(sin(dot(iw + float2(1.0, 0.0), float2(73.2, 219.6)) + 1.31) * 43758.5453);
+float wc = frac(sin(dot(iw + float2(0.0, 1.0), float2(73.2, 219.6)) + 1.31) * 43758.5453);
+float wd = frac(sin(dot(iw + float2(1.0, 1.0), float2(73.2, 219.6)) + 1.31) * 43758.5453);
+float warpA = lerp(lerp(wa, wb, fw.x), lerp(wc, wd, fw.x), fw.y);
+float warpB = frac(sin(dot(iw + float2(5.0, -3.0), float2(191.8, 47.5)) + 3.73) * 43758.5453);
+p += (float2(warpA, warpB) - 0.5) * 7600.0;
+
+float2 q0 = p / 33500.0;
 float2 i0 = floor(q0);
 float2 f0 = frac(q0);
 f0 = f0 * f0 * (3.0 - 2.0 * f0);
-float a0 = frac(sin(dot(i0, float2(127.1, 311.7))) * 43758.5453);
-float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(127.1, 311.7))) * 43758.5453);
-float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
-float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
+float a0 = frac(sin(dot(i0, float2(151.3, 227.9)) + 0.97) * 43758.5453);
+float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(151.3, 227.9)) + 0.97) * 43758.5453);
+float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(151.3, 227.9)) + 0.97) * 43758.5453);
+float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(151.3, 227.9)) + 0.97) * 43758.5453);
 float macro = lerp(lerp(a0, b0, f0.x), lerp(c0, d0, f0.x), f0.y);
 
-float2 rotated = float2(p.x * 0.61 - p.y * 0.56, p.x * 0.49 + p.y * 0.76);
-float2 q1 = rotated / 10800.0;
+float2 rotated = float2(p.x * 0.58 - p.y * 0.67, p.x * 0.63 + p.y * 0.54);
+float2 q1 = rotated / 12300.0;
 float2 i1 = floor(q1);
 float2 f1 = frac(q1);
 f1 = f1 * f1 * (3.0 - 2.0 * f1);
-float a1 = frac(sin(dot(i1, float2(269.5, 183.3))) * 43758.5453);
-float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(269.5, 183.3))) * 43758.5453);
-float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
-float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
+float a1 = frac(sin(dot(i1, float2(313.1, 109.7)) + 2.83) * 43758.5453);
+float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(313.1, 109.7)) + 2.83) * 43758.5453);
+float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(313.1, 109.7)) + 2.83) * 43758.5453);
+float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(313.1, 109.7)) + 2.83) * 43758.5453);
 float detail = lerp(lerp(a1, b1, f1.x), lerp(c1, d1, f1.x), f1.y);
 
-float patch = smoothstep(0.31, 0.73, macro * 0.66 + detail * 0.34);
-return saturate(BaseDensity * lerp(0.12, 0.94, patch));
+float2 q2 = (p + float2(4100.0, -7900.0)) / 4700.0;
+float2 i2 = floor(q2);
+float2 f2 = frac(q2);
+f2 = f2 * f2 * (3.0 - 2.0 * f2);
+float a2 = frac(sin(dot(i2, float2(97.6, 341.2)) + 5.19) * 43758.5453);
+float b2 = frac(sin(dot(i2 + float2(1.0, 0.0), float2(97.6, 341.2)) + 5.19) * 43758.5453);
+float c2 = frac(sin(dot(i2 + float2(0.0, 1.0), float2(97.6, 341.2)) + 5.19) * 43758.5453);
+float d2 = frac(sin(dot(i2 + float2(1.0, 1.0), float2(97.6, 341.2)) + 5.19) * 43758.5453);
+float micro = lerp(lerp(a2, b2, f2.x), lerp(c2, d2, f2.x), f2.y);
+
+float field = saturate(macro * 0.40 + detail * 0.36 + micro * 0.24);
+float patch = smoothstep(0.08, 0.92, field);
+float foundation = smoothstep(0.015, 0.78, BaseDensity);
+return saturate(foundation * lerp(0.72, 0.92, patch));
 )");
 
 		ConfigureMask(TallMask, TEXT("sparse wild stalk pocket mask"));
 		TallMask->Code = TEXT(R"(
 float2 p = WorldPos.xy;
-float2 q0 = p / 33000.0;
+float2 qw = (p + float2(-17300.0, 22100.0)) / 83000.0;
+float2 iw = floor(qw);
+float2 fw = frac(qw);
+fw = fw * fw * (3.0 - 2.0 * fw);
+float wa = frac(sin(dot(iw, float2(211.3, 57.9)) + 2.29) * 43758.5453);
+float wb = frac(sin(dot(iw + float2(1.0, 0.0), float2(211.3, 57.9)) + 2.29) * 43758.5453);
+float wc = frac(sin(dot(iw + float2(0.0, 1.0), float2(211.3, 57.9)) + 2.29) * 43758.5453);
+float wd = frac(sin(dot(iw + float2(1.0, 1.0), float2(211.3, 57.9)) + 2.29) * 43758.5453);
+float warpA = lerp(lerp(wa, wb, fw.x), lerp(wc, wd, fw.x), fw.y);
+float warpB = frac(sin(dot(iw + float2(-4.0, 6.0), float2(61.7, 283.1)) + 4.11) * 43758.5453);
+p += (float2(warpA, warpB) - 0.5) * 10400.0;
+
+float2 q0 = p / 41000.0;
 float2 i0 = floor(q0);
 float2 f0 = frac(q0);
 f0 = f0 * f0 * (3.0 - 2.0 * f0);
-float a0 = frac(sin(dot(i0, float2(127.1, 311.7))) * 43758.5453);
-float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(127.1, 311.7))) * 43758.5453);
-float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
-float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(127.1, 311.7))) * 43758.5453);
+float a0 = frac(sin(dot(i0, float2(181.9, 353.4)) + 1.67) * 43758.5453);
+float b0 = frac(sin(dot(i0 + float2(1.0, 0.0), float2(181.9, 353.4)) + 1.67) * 43758.5453);
+float c0 = frac(sin(dot(i0 + float2(0.0, 1.0), float2(181.9, 353.4)) + 1.67) * 43758.5453);
+float d0 = frac(sin(dot(i0 + float2(1.0, 1.0), float2(181.9, 353.4)) + 1.67) * 43758.5453);
 float macro = lerp(lerp(a0, b0, f0.x), lerp(c0, d0, f0.x), f0.y);
 
-float2 rotated = float2(p.x * 0.48 + p.y * 0.79, -p.x * 0.71 + p.y * 0.52);
-float2 q1 = rotated / 14500.0;
+float2 rotated = float2(p.x * 0.42 + p.y * 0.84, -p.x * 0.78 + p.y * 0.46);
+float2 q1 = rotated / 15700.0;
 float2 i1 = floor(q1);
 float2 f1 = frac(q1);
 f1 = f1 * f1 * (3.0 - 2.0 * f1);
-float a1 = frac(sin(dot(i1, float2(269.5, 183.3))) * 43758.5453);
-float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(269.5, 183.3))) * 43758.5453);
-float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
-float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(269.5, 183.3))) * 43758.5453);
+float a1 = frac(sin(dot(i1, float2(337.2, 129.8)) + 3.37) * 43758.5453);
+float b1 = frac(sin(dot(i1 + float2(1.0, 0.0), float2(337.2, 129.8)) + 3.37) * 43758.5453);
+float c1 = frac(sin(dot(i1 + float2(0.0, 1.0), float2(337.2, 129.8)) + 3.37) * 43758.5453);
+float d1 = frac(sin(dot(i1 + float2(1.0, 1.0), float2(337.2, 129.8)) + 3.37) * 43758.5453);
 float detail = lerp(lerp(a1, b1, f1.x), lerp(c1, d1, f1.x), f1.y);
 
-float pocket = smoothstep(0.67, 0.84, macro * 0.72 + detail * 0.28);
-return saturate(BaseDensity * pocket);
+float2 q2 = (p + float2(7600.0, 9300.0)) / 5900.0;
+float2 i2 = floor(q2);
+float2 f2 = frac(q2);
+f2 = f2 * f2 * (3.0 - 2.0 * f2);
+float a2 = frac(sin(dot(i2, float2(113.7, 271.6)) + 5.73) * 43758.5453);
+float b2 = frac(sin(dot(i2 + float2(1.0, 0.0), float2(113.7, 271.6)) + 5.73) * 43758.5453);
+float c2 = frac(sin(dot(i2 + float2(0.0, 1.0), float2(113.7, 271.6)) + 5.73) * 43758.5453);
+float d2 = frac(sin(dot(i2 + float2(1.0, 1.0), float2(113.7, 271.6)) + 5.73) * 43758.5453);
+float micro = lerp(lerp(a2, b2, f2.x), lerp(c2, d2, f2.x), f2.y);
+
+float field = saturate(macro * 0.45 + detail * 0.35 + micro * 0.20);
+float pocket = smoothstep(0.40, 0.83, field);
+float foundation = smoothstep(0.025, 0.82, BaseDensity);
+return saturate(foundation * lerp(0.06, 0.88, pocket) * lerp(0.78, 1.0, micro));
 )");
 
 		FGrassInput FillerInput(FillerInputName);
@@ -1597,28 +1875,52 @@ return saturate(BaseDensity * pocket);
 		};
 		const FFinalCameraSpec Specs[] = {
 			{
-				TEXT("V841_Grass_Close"),
-				TEXT("FFSmokeHighlandV841GrassCloseCamera"),
+				TEXT("V842_Grass_Close"),
+				TEXT("FFSmokeHighlandV842GrassCloseCamera"),
 				FVector2D(-470.0f, -350.0f),
 				205.0f,
 				48.0f,
 				40.0f
 			},
 			{
-				TEXT("V841_Grass_Walking"),
-				TEXT("FFSmokeHighlandV841GrassWalkingCamera"),
+				TEXT("V842_Grass_Walking"),
+				TEXT("FFSmokeHighlandV842GrassWalkingCamera"),
 				FVector2D(-820.0f, -610.0f),
 				235.0f,
 				72.0f,
 				48.0f
 			},
 			{
-				TEXT("V841_Grass_MidDistance"),
-				TEXT("FFSmokeHighlandV841GrassMidDistanceCamera"),
+				TEXT("V842_Grass_MidDistance"),
+				TEXT("FFSmokeHighlandV842GrassMidDistanceCamera"),
 				FVector2D(-2400.0f, 1650.0f),
 				860.0f,
 				120.0f,
 				52.0f
+			},
+			{
+				TEXT("V842_Grass_SpeciesHierarchy"),
+				TEXT("FFSmokeHighlandV842GrassSpeciesHierarchyCamera"),
+				FVector2D(-620.0f, 260.0f),
+				185.0f,
+				62.0f,
+				43.0f
+			},
+			{
+				TEXT("V842_Grass_PatchPlayer"),
+				TEXT("FFSmokeHighlandV842GrassPatchPlayerCamera"),
+				FVector2D(-1480.0f, 2060.0f),
+				335.0f,
+				72.0f,
+				49.0f
+			},
+			{
+				TEXT("V842_Grass_PatchTopDown"),
+				TEXT("FFSmokeHighlandV842GrassPatchTopDownCamera"),
+				FVector2D(0.0f, 0.0f),
+				4800.0f,
+				0.0f,
+				42.0f
 			}
 		};
 
@@ -1640,6 +1942,47 @@ return saturate(BaseDensity * pocket);
 				TargetHit.ImpactPoint + FVector(0.0f, 0.0f, Spec.TargetHeight),
 				Spec.FieldOfView) ? 1 : 0;
 		}
+
+		FVector2D LightFacing(1.0f, 0.0f);
+		for (TActorIterator<ADirectionalLight> It(World); It; ++It)
+		{
+			const FVector Incoming = -It->GetActorForwardVector();
+			const FVector2D Horizontal(Incoming.X, Incoming.Y);
+			if (!Horizontal.IsNearlyZero())
+			{
+				LightFacing = Horizontal.GetSafeNormal();
+			}
+			break;
+		}
+		const FVector2D SideFacing(-LightFacing.Y, LightFacing.X);
+		struct FFinalLightingCameraSpec
+		{
+			const TCHAR* Label;
+			const TCHAR* Tag;
+			FVector2D Direction;
+		};
+		const FFinalLightingCameraSpec LightingSpecs[] = {
+			{ TEXT("V842_Grass_LightingFront"), TEXT("FFSmokeHighlandV842GrassLightingFrontCamera"), LightFacing },
+			{ TEXT("V842_Grass_LightingBack"), TEXT("FFSmokeHighlandV842GrassLightingBackCamera"), -LightFacing },
+			{ TEXT("V842_Grass_LightingSide"), TEXT("FFSmokeHighlandV842GrassLightingSideCamera"), SideFacing }
+		};
+		for (const FFinalLightingCameraSpec& Spec : LightingSpecs)
+		{
+			const FVector2D CameraXY = TargetXY + Spec.Direction * 610.0f;
+			FHitResult CameraHit;
+			if (!TraceLandscapeGround(World, CameraXY, CameraHit))
+			{
+				continue;
+			}
+			Added += SpawnValidationCamera(
+				World,
+				Spec.Label,
+				FName(Spec.Tag),
+				FinalCameraTag,
+				CameraHit.ImpactPoint + FVector(0.0f, 0.0f, 150.0f),
+				TargetHit.ImpactPoint + FVector(0.0f, 0.0f, 58.0f),
+				42.0f) ? 1 : 0;
+		}
 		return Added;
 	}
 }
@@ -1656,21 +1999,21 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	UE_LOG(
 		LogTemp,
 		Display,
-		TEXT("FFV841Grass: start mode=%s force=%s exposureBias=%.2f"),
+		TEXT("FFV842Grass: start mode=%s force=%s exposureBias=%.2f"),
 		*Mode,
 		bForce ? TEXT("true") : TEXT("false"),
 		ExposureBias);
 
 	if (!bForce)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: explicit -Force is required."));
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: explicit -Force is required."));
 		return 1;
 	}
 
 	UWorld* World = UEditorLoadingAndSavingUtils::LoadMap(HighlandMapPath);
 	if (!World)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: failed to load Highland map."));
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: failed to load Highland map."));
 		return 1;
 	}
 
@@ -1684,16 +2027,17 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	}
 	if (!PrimaryLandscape)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: no Highland landscape found."));
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: no Highland landscape found."));
 		return 1;
 	}
 
 	const FProtectedState Before = CaptureProtectedState(World);
 	UMaterial* NaturalizedBladeMaterial = CreateOrLoadNaturalizedBladeMaterial();
+	UMaterial* NaturalizedWildgrassMaterial = CreateOrLoadNaturalizedBladeMaterial(true);
 	UMaterial* NaturalizedRyegrassMaterial = CreateOrLoadNaturalizedRyegrassMaterial();
-	if (!NaturalizedBladeMaterial || !NaturalizedRyegrassMaterial)
+	if (!NaturalizedBladeMaterial || !NaturalizedWildgrassMaterial || !NaturalizedRyegrassMaterial)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: naturalized grass material creation failed."));
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: naturalized grass material creation failed."));
 		return 1;
 	}
 
@@ -1737,7 +2081,7 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 		ULandscapeGrassType* FillerGrassType = CreateOrLoadSingleVarietyGrassType(
 			FillerGrassTypePackagePath,
 			FillerGrassTypeObjectPath,
-			TEXT("GT_FF_Highland_Grass_Filler_V841"),
+			TEXT("GT_FF_Highland_Grass_Filler_V842"),
 			BladeMeshPath,
 			NaturalizedBladeMaterial,
 			220.0f,
@@ -1750,33 +2094,33 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 		ULandscapeGrassType* MediumGrassType = CreateOrLoadSingleVarietyGrassType(
 			MediumGrassTypePackagePath,
 			MediumGrassTypeObjectPath,
-			TEXT("GT_FF_Highland_Grass_Medium_V841"),
+			TEXT("GT_FF_Highland_Grass_Medium_V842"),
 			RyegrassTuftMeshPath,
 			NaturalizedRyegrassMaterial,
-			54.0f,
-			FFloatInterval(0.42f, 0.72f),
-			FFloatInterval(0.40f, 0.70f),
-			FFloatInterval(0.52f, 0.85f),
+			52.0f,
+			FFloatInterval(0.22f, 0.34f),
+			FFloatInterval(0.20f, 0.32f),
+			FFloatInterval(0.62f, 0.94f),
 			3000,
 			11500,
 			7200);
 		ULandscapeGrassType* TallGrassType = CreateOrLoadSingleVarietyGrassType(
 			TallGrassTypePackagePath,
 			TallGrassTypeObjectPath,
-			TEXT("GT_FF_Highland_Grass_Tall_V841"),
-			RyegrassStalkMeshPath,
-			NaturalizedRyegrassMaterial,
-			5.0f,
-			FFloatInterval(0.22f, 0.36f),
-			FFloatInterval(0.21f, 0.35f),
-			FFloatInterval(0.40f, 0.65f),
+			TEXT("GT_FF_Highland_Grass_Tall_V842"),
+			BladeMeshPath,
+			NaturalizedWildgrassMaterial,
+			7.5f,
+			FFloatInterval(0.38f, 0.62f),
+			FFloatInterval(0.36f, 0.58f),
+			FFloatInterval(0.95f, 1.32f),
 			4000,
 			14000,
 			8000);
 
 		if (!LandscapeMaterial || !FillerGrassType || !MediumGrassType || !TallGrassType)
 		{
-			UE_LOG(LogTemp, Error, TEXT("FFV841Grass: final grass assets could not be created."));
+			UE_LOG(LogTemp, Error, TEXT("FFV842Grass: final grass assets could not be created."));
 			return 1;
 		}
 
@@ -1802,18 +2146,18 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 			PrimaryLandscape->Modify();
 			PrimaryLandscape->Tags.AddUnique(AppliedTag);
 			PrimaryLandscape->MarkPackageDirty();
-			bModeSucceeded = FinalValidationCameras == 3;
+			bModeSucceeded = FinalValidationCameras == 9;
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: unsupported mode '%s'."), *Mode);
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: unsupported mode '%s'."), *Mode);
 		return 1;
 	}
 
 	if (!bModeSucceeded)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: mode '%s' failed before save."), *Mode);
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: mode '%s' failed before save."), *Mode);
 		return 1;
 	}
 
@@ -1821,7 +2165,7 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	const bool bProtectedStateUnchanged = ProtectedStateMatches(Before, After);
 	if (!bProtectedStateUnchanged)
 	{
-		UE_LOG(LogTemp, Error, TEXT("FFV841Grass: protected-state mismatch; refusing to save."));
+		UE_LOG(LogTemp, Error, TEXT("FFV842Grass: protected-state mismatch; refusing to save."));
 		return 1;
 	}
 
@@ -1832,10 +2176,11 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	UE_LOG(
 		LogTemp,
 		Display,
-		TEXT("FFV841Grass: lookdev instances A=%d B=%d C=%d cameras=%d removedLookdev=%d finalCameras=%d correctedDirectionalLights=%d correctedSkyLights=%d correctedPostProcessVolumes=%d"),
+		TEXT("FFV842Grass: lookdev instances A=%d B=%d C=%d D=%d cameras=%d removedLookdev=%d finalCameras=%d correctedDirectionalLights=%d correctedSkyLights=%d correctedPostProcessVolumes=%d"),
 		LookdevStats.CandidateAInstances,
 		LookdevStats.CandidateBInstances,
 		LookdevStats.CandidateCInstances,
+		LookdevStats.CandidateDInstances,
 		LookdevStats.Cameras,
 		RemovedLookdevActors,
 		FinalValidationCameras,
@@ -1845,7 +2190,7 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	UE_LOG(
 		LogTemp,
 		Display,
-		TEXT("FFV841Grass: protected playerStarts=%d waterActors=%d mountainActors=%d unchanged=%s"),
+		TEXT("FFV842Grass: protected playerStarts=%d waterActors=%d mountainActors=%d unchanged=%s"),
 		After.PlayerStarts.Num(),
 		After.WaterActors.Num(),
 		After.MountainActors,
@@ -1853,7 +2198,7 @@ int32 UFFStarterHighlandGrassNaturalizationCommandlet::Main(const FString& Param
 	UE_LOG(
 		LogTemp,
 		Display,
-		TEXT("FFV841Grass: savedMap=%s savedPackages=%s"),
+		TEXT("FFV842Grass: savedMap=%s savedPackages=%s"),
 		bSavedMap ? TEXT("true") : TEXT("false"),
 		bSavedPackages ? TEXT("true") : TEXT("false"));
 

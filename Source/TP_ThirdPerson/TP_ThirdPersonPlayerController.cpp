@@ -1371,6 +1371,13 @@ void ATP_ThirdPersonPlayerController::BeginPlay()
 			SetLivePawnMenuHold(false);
 			ApplyMenuInputState(false, nullptr);
 		}
+		if (IsFFStarterHighlandBlockoutWorld(GetWorld()) && FParse::Param(FCommandLine::Get(), TEXT("FFSmokeHighlandCaptureOnly")))
+		{
+			// Lightweight art-review captures skip the title/creator/tutorial smoke sequence.
+			HideFrontEnd(false);
+			SetLivePawnMenuHold(false);
+			ApplyMenuInputState(false, nullptr);
+		}
 		GetWorldTimerManager().SetTimer(SmokeStepTimer, this, &ThisClass::AdvanceSmokeTest, 0.6f, false);
 	}
 }
@@ -2395,6 +2402,34 @@ void ATP_ThirdPersonPlayerController::AdvanceSmokeTest()
 		return;
 	}
 
+	if (IsFFStarterHighlandBlockoutWorld(GetWorld()) && FParse::Param(FCommandLine::Get(), TEXT("FFSmokeHighlandCaptureOnly")))
+	{
+		if (SmokeStepIndex++ == 0)
+		{
+			FString HighlandSmokeCameraTags;
+			if (!FParse::Value(FCommandLine::Get(), TEXT("FFSmokeCameraTags="), HighlandSmokeCameraTags) || HighlandSmokeCameraTags.IsEmpty())
+			{
+				FString HighlandSmokeCameraTag;
+				if (FParse::Value(FCommandLine::Get(), TEXT("FFSmokeCameraTag="), HighlandSmokeCameraTag) && !HighlandSmokeCameraTag.IsEmpty())
+				{
+					HighlandSmokeCameraTags = HighlandSmokeCameraTag;
+				}
+			}
+
+			if (HighlandSmokeCameraTags.IsEmpty())
+			{
+				FinishSmokeTest(false, TEXT("Highland capture-only smoke requested without FFSmokeCameraTag(s)."));
+				return;
+			}
+
+			BeginSmokeCameraSequence(HighlandSmokeCameraTags);
+			return;
+		}
+
+		FinishSmokeTest(true);
+		return;
+	}
+
 	if (IsTitanMainGrasslandHostSandboxWorld(GetWorld()))
 	{
 		if (SmokeStepIndex++ == 0)
@@ -3234,8 +3269,30 @@ void ATP_ThirdPersonPlayerController::ExecuteQueuedSmokeScreenshot()
 		return;
 	}
 
-	const FString Label = PendingSmokeCaptureLabel;
+	FString Label = PendingSmokeCaptureLabel;
 	PendingSmokeCaptureLabel.Reset();
+	if (bSmokeV842WindProof && Label.Contains(TEXT("V842_WindProof")))
+	{
+		if (SmokeV842WindProofFrameIndex++ == 0)
+		{
+			CaptureSmokeScreenshot(TEXT("V842_Wind_Warmup"));
+			return;
+		}
+		const float CurrentTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
+		if (SmokeV842WindProofStartSeconds < 0.0f)
+		{
+			SmokeV842WindProofStartSeconds = CurrentTime;
+		}
+		const float ElapsedSeconds = FMath::Max(0.0f, CurrentTime - SmokeV842WindProofStartSeconds);
+		const int32 ElapsedMilliseconds = FMath::RoundToInt(ElapsedSeconds * 1000.0f);
+		Label = FString::Printf(TEXT("V842_Wind_T%04dms"), ElapsedMilliseconds);
+		UE_LOG(
+			LogTP_ThirdPerson,
+			Display,
+			TEXT("FFSmoke V84.2 wind capture actualTime=%.3fs label=%s"),
+			ElapsedSeconds,
+			*Label);
+	}
 	CaptureSmokeScreenshot(Label);
 }
 
@@ -3243,6 +3300,9 @@ void ATP_ThirdPersonPlayerController::BeginSmokeCameraSequence(const FString& Ca
 {
 	PendingSmokeCameraTags.Reset();
 	PendingSmokeCameraIndex = 0;
+	bSmokeV842WindProof = FParse::Param(FCommandLine::Get(), TEXT("FFSmokeV842WindProof"));
+	SmokeV842WindProofStartSeconds = -1.0f;
+	SmokeV842WindProofFrameIndex = 0;
 
 	FString NormalizedTags = CameraTagList;
 	NormalizedTags.ReplaceInline(TEXT(";"), TEXT(","));
@@ -3257,6 +3317,11 @@ void ATP_ThirdPersonPlayerController::BeginSmokeCameraSequence(const FString& Ca
 	{
 		return CameraTag.IsEmpty();
 	});
+	if (bSmokeV842WindProof && PendingSmokeCameraTags.Num() > 0)
+	{
+		const FString WarmupCameraTag = PendingSmokeCameraTags[0];
+		PendingSmokeCameraTags.Insert(WarmupCameraTag, 0);
+	}
 
 	const bool bHasCameraTags = PendingSmokeCameraTags.Num() > 0;
 	LogSmokeTestStep(TEXT("Highland Multi-Camera Capture Setup"), bHasCameraTags, FString::Printf(TEXT("camera_count=%d"), PendingSmokeCameraTags.Num()));
@@ -3296,7 +3361,12 @@ void ATP_ThirdPersonPlayerController::CaptureNextSmokeCamera()
 
 	FString Label = CameraTag;
 	FString CaptureVersion = TEXT("V832");
-	if (Label.Contains(TEXT("FFSmokeHighlandV841")))
+	if (Label.Contains(TEXT("FFSmokeHighlandV842")))
+	{
+		Label.ReplaceInline(TEXT("FFSmokeHighlandV842"), TEXT(""));
+		CaptureVersion = TEXT("V842");
+	}
+	else if (Label.Contains(TEXT("FFSmokeHighlandV841")))
 	{
 		Label.ReplaceInline(TEXT("FFSmokeHighlandV841"), TEXT(""));
 		CaptureVersion = TEXT("V841");
@@ -3312,17 +3382,31 @@ void ATP_ThirdPersonPlayerController::CaptureNextSmokeCamera()
 		Label = CameraTag;
 	}
 	Label = FString::Printf(TEXT("%s_%02d_%s"), *CaptureVersion, CameraNumber, *Label);
+	if (bSmokeV842WindProof)
+	{
+		Label = TEXT("V842_WindProof");
+	}
 
-	float CameraWarmupSeconds = 0.18f;
+	float CameraWarmupSeconds = bSmokeV842WindProof ? 0.02f : 0.18f;
 	FParse::Value(FCommandLine::Get(), TEXT("FFSmokeCameraWarmup="), CameraWarmupSeconds);
-	CameraWarmupSeconds = FMath::Clamp(CameraWarmupSeconds, 0.18f, 5.0f);
+	CameraWarmupSeconds = FMath::Clamp(
+		CameraWarmupSeconds,
+		bSmokeV842WindProof ? 0.02f : 0.18f,
+		5.0f);
 	QueueSmokeScreenshotCapture(Label, CameraWarmupSeconds);
 	PendingSmokeCameraIndex++;
+	float NextCameraDelay = CameraWarmupSeconds + 0.37f;
+	if (bSmokeV842WindProof && PendingSmokeCameraIndex < PendingSmokeCameraTags.Num())
+	{
+		static const float WindFrameGaps[] = { 0.10f, 0.33f, 0.33f, 0.34f, 0.50f, 0.50f };
+		const int32 GapIndex = FMath::Clamp(PendingSmokeCameraIndex - 1, 0, UE_ARRAY_COUNT(WindFrameGaps) - 1);
+		NextCameraDelay = WindFrameGaps[GapIndex];
+	}
 	GetWorldTimerManager().SetTimer(
 		SmokeStepTimer,
 		this,
 		&ThisClass::CaptureNextSmokeCamera,
-		CameraWarmupSeconds + 0.37f,
+		NextCameraDelay,
 		false);
 }
 

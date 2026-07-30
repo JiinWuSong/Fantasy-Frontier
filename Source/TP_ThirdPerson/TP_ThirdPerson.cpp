@@ -11,6 +11,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "FileHelpers.h"
+#include "HAL/IConsoleManager.h"
 #include "Landscape.h"
 #include "LandscapeComponent.h"
 #include "LandscapeEdit.h"
@@ -1324,6 +1325,15 @@ private:
 
 	bool LoadEditorGrassTargetMap()
 	{
+		if (IConsoleVariable* FixedStreamingPool = IConsoleManager::Get().FindConsoleVariable(TEXT("r.Streaming.UseFixedPoolSize")))
+		{
+			FixedStreamingPool->Set(1, ECVF_SetByCode);
+		}
+		if (IConsoleVariable* StreamingPoolSize = IConsoleManager::Get().FindConsoleVariable(TEXT("r.Streaming.PoolSize")))
+		{
+			StreamingPoolSize->Set(128, ECVF_SetByCode);
+		}
+
 		Report = TEXT("# Full Editor Landscape GrassMap Build\n\n");
 		Report += bEditorGrassResolveLayersBeforeBuild
 			? TEXT("Mode: explicit full-editor workflow launched by `-FFEditorLayerResolveGrassMapBuild`; not a commandlet. Resolves target landscape layer content before GrassMap build.\n\n")
@@ -1333,8 +1343,15 @@ private:
 			GIsEditor ? 1 : 0,
 			GUsingNullRHI ? 1 : 0,
 			IsRunningCommandlet() ? 1 : 0);
+		Report += TEXT("- Validation-only texture streaming pool: fixed at 128 MB for the low-memory GrassMap bake.\n\n");
 
-		EditorGrassWorld = UEditorLoadingAndSavingUtils::LoadMap(GEditorGrassTargetMapPath);
+		UWorld* ActiveEditorWorld = GEditor ? GEditor->GetEditorWorldContext().World() : nullptr;
+		const bool bCanReuseActiveWorld = ActiveEditorWorld
+			&& ActiveEditorWorld->GetOutermost()
+			&& ActiveEditorWorld->GetOutermost()->GetName().Equals(GEditorGrassTargetMapPath, ESearchCase::IgnoreCase);
+		EditorGrassWorld = bCanReuseActiveWorld
+			? ActiveEditorWorld
+			: UEditorLoadingAndSavingUtils::LoadMap(GEditorGrassTargetMapPath);
 		if (!EditorGrassWorld)
 		{
 			Report += TEXT("- Loaded world: missing\n");
@@ -1343,6 +1360,9 @@ private:
 			EditorGrassStage = EEditorGrassStage::BlockedExit;
 			return true;
 		}
+		Report += bCanReuseActiveWorld
+			? TEXT("- World acquisition: reused the already loaded target editor world to avoid a duplicate full-map allocation.\n")
+			: TEXT("- World acquisition: loaded the requested target map because a matching editor world was not already active.\n");
 
 		EditorGrassLandscape = FindEditorGrassTargetLandscape(EditorGrassWorld);
 		if (!EditorGrassLandscape)
